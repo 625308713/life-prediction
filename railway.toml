@@ -1,7 +1,7 @@
 [build]
 builder = "nixpacks"
 buildCommand = "cd life-predictor/backend && npm ci && npx prisma generate && npm run build && cd ../frontend && npm ci && npm run build"
-watchPatterns = ["life-predictor/backend/src/**", "life-predictor/frontend/src/**", "life-predictor/backend/prisma/**"]
+watchPatterns = ["life-predictor/backend/**", "life-predictor/frontend/**", "package.json", "railway.toml", ".nvmrc"]
 
 [deploy]
 startCommand = "cd life-predictor/backend && npx prisma migrate deploy && node dist/index.js"

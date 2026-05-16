@@ -1,0 +1,16 @@
+[build]
+builder = "nixpacks"
+buildCommand = "cd backend && npm ci && npx prisma generate && npm run build && cd ../frontend && npm ci && npm run build"
+watchPatterns = ["backend/src/**", "frontend/src/**", "backend/prisma/**"]
+
+[deploy]
+startCommand = "cd backend && npx prisma migrate deploy && node dist/index.js"
+healthcheckPath = "/api/health"
+restartPolicyMaxRetries = 3
+
+[service]
+port = 3001
+
+[variables]
+NODE_ENV = "production"
+PORT = "3001"

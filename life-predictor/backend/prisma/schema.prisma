@@ -1,0 +1,120 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Prediction {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 基础生物特征
+  age           Int
+  gender        String // male, female
+  heightCm      Float
+  weightKg      Float
+  bmi           Float
+  waistCm       Float
+  ethnicity     String  @default("east_asian")
+
+  // 疾病与健康状况
+  chronicDiseases   String[] // 慢性病列表
+  cancerHistory     Boolean  @default(false)
+  bloodPressure     String   // normal, elevated, stage1, stage2
+  bloodSugar        String   // normal, prediabetes, diabetes
+  cholesterolLevel  String?  // normal, borderline, high
+  regularCheckup    Boolean  @default(false) // 近2年内定期体检
+  currentMedications String[]
+
+  // 家族遗传史
+  parentLongevity       String  // both_above_75, one_above_75, both_below_65, other
+  familyMemberAbove90   Boolean @default(false)
+  familyAlzheimers      Boolean @default(false)
+  familyParkinsons      Boolean @default(false)
+  familyHeartDisease    Boolean @default(false)
+  familyCancer          Boolean @default(false)
+
+  // 生活方式
+  smokingStatus       String  // never, quit_10y_plus, quit_under_10y, current_light, current_heavy
+  alcoholConsumption  String  // never, occasional, weekly_moderate, daily_heavy
+  exerciseFrequency   String  // three_plus, one_to_two, rarely
+  sedentaryHours      String  // under_4, four_to_eight, above_8
+  dietPattern         String  // balanced, high_meat_salt, veggie_rich
+  sleepHours          Float
+  waterIntake         String? // adequate, inadequate
+
+  // 心理与社会因素
+  happinessScore      Int     // 1-10
+  chronicStress       Boolean @default(false)
+  depressionTendency  Boolean @default(false)
+  stablePartner       Boolean @default(false)
+  socialActivity      String  // high, moderate, isolated
+  senseOfPurpose      Boolean @default(false)
+  educationLevel      String? // below_bachelor, bachelor_plus
+
+  // 环境与职业
+  highRiskOccupation  Boolean @default(false)
+  weeklyWorkHours     Int?
+  longTermNoise       Boolean @default(false)
+  incomeLevel         String? // low, medium, high
+
+  // 行为与认知模式
+  selfDisciplineScore Int?    // 1-10
+  positiveAgingAttitude Boolean? @default(false)
+  readingHabit        Boolean? @default(false)
+  highRiskBehaviors   Boolean? @default(false)
+
+  // 睡眠深度指标
+  bedtimeRange          String? // before_22, 22_23, 23_24, after_24
+  untreatedSleepApnea   Boolean? @default(false)
+  moderateNapping       Boolean? @default(false)
+  preSleepScreenTime    Boolean? @default(false)
+
+  // 免疫与炎症
+  frequentIllness       Boolean? @default(false)
+  autoimmuneDisease     Boolean? @default(false)
+  chronicInflammation   Boolean? @default(false)
+
+  // 医疗资源获取
+  distanceToHospital    String? // under_30min, over_30min
+  commercialInsurance   Boolean? @default(false)
+  recentCheckupCount    Int?     // 近5年体检次数
+  hasFamilyDoctor       Boolean? @default(false)
+
+  // 进阶选填项
+  restingHeartRate      Int?    // bpm
+  vo2maxLevel           String? // excellent, good, average, poor
+  gripStrength          String? // strong, normal, weak
+  unintendedWeightLoss  Boolean? @default(false)
+
+  // 预测结果
+  baseLifeExpectancy Float
+  adjustedMin        Float
+  adjustedMax        Float
+  healthLifespan     Float
+  dimensionScores    Json
+  topRisks           String[]
+  topStrengths       String[]
+  potentialGain      Float
+  confidenceLevel    Float
+
+  // 大模型报告
+  aiReport           String?  @db.Text
+  aiReportGeneratedAt DateTime?
+
+  @@index([createdAt])
+  @@index([gender])
+  @@index([age])
+  @@index([baseLifeExpectancy])
+}
+
+model AdminSession {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+}

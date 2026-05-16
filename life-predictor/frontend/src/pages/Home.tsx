@@ -34,10 +34,10 @@ const stepComponents = [
   Step11Advanced,
 ];
 
-const stepKeys: (keyof typeof import("../i18n/zh").steps)[] = [
+const stepKeys = [
   "step1", "step2", "step3", "step4", "step5", "step6",
   "step7", "step8", "step9", "step10", "step11",
-];
+] as const;
 
 function getConfidenceLevel(data: QuestionnaireData, currentStep: number): number {
   let confidence = 60;
@@ -173,7 +173,7 @@ export default function Home() {
           {/* Step Title */}
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-bold text-gray-800">
-              {t.steps[stepKeys[currentStep]]}
+              {t.steps[stepKeys[currentStep] as keyof typeof t.steps]}
             </h2>
             {displayOptional && (
               <span className="text-xs bg-gray-100 text-gray-500 px-3 py-1 rounded-full">

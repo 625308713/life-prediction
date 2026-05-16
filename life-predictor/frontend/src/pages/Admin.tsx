@@ -36,7 +36,7 @@ export default function Admin() {
 
   // Detail modal
   const [detailId, setDetailId] = useState<string | null>(null);
-  const [detailData, setDetailData] = useState<Record<string, unknown> | null>(null);
+  const [detailData, setDetailData] = useState<Record<string, any> | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
 
   const headers = useCallback(

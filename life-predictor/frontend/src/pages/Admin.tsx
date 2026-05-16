@@ -405,7 +405,7 @@ export default function Admin() {
                   <div>
                     <h3 className="font-bold text-gray-700 mb-2">{t.steps.step1}</h3>
                     <div className="grid grid-cols-3 gap-3 text-sm">
-                      <div><span className="text-gray-500">{t.fields.gender}:</span> {detailData.gender === "male" ? t.fields.genderMale : t.fields.genderFemale}</div>
+                      <div><span className="text-gray-500">{t.fields.gender}:</span> {(detailData.gender as string) === "male" ? t.fields.genderMale : t.fields.genderFemale}</div>
                       <div><span className="text-gray-500">{t.fields.age}:</span> {detailData.age as number}</div>
                       <div><span className="text-gray-500">BMI:</span> {detailData.bmi as number}</div>
                     </div>

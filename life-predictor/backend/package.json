@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "寿命预测工具 - 后端服务",
   "main": "dist/index.js",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
@@ -18,7 +21,6 @@
     "cors": "^2.8.5",
     "express": "^4.21.1",
     "express-rate-limit": "^7.4.1",
-    "marked": "^14.1.4",
     "uuid": "^10.0.0"
   },
   "devDependencies": {

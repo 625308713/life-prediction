@@ -31,7 +31,7 @@ COPY --from=backend-build /app/backend/prisma ./backend/prisma
 COPY --from=backend-build /app/backend/node_modules/.prisma ./backend/node_modules/.prisma
 
 # Copy frontend build as static files
-COPY --from=frontend-build /app/frontend/dist ./dist/public
+COPY --from=frontend-build /app/dist/public ./dist/public
 
 # Copy env example for reference
 COPY backend/.env.example ./backend/.env.example
@@ -42,4 +42,4 @@ ENV NODE_ENV=production
 ENV PORT=3001
 
 WORKDIR /app/backend
-CMD ["node", "dist/index.js"]
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/index.js"]

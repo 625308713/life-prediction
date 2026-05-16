@@ -144,8 +144,9 @@ export async function generateAIReport(
     }
 
     if (!onProgress) {
-      const json: { choices: { message: { content: string } }[] } =
-        await response.json();
+      const json = (await response.json()) as {
+        choices: { message: { content: string } }[];
+      };
       return json.choices?.[0]?.message?.content || null;
     }
 

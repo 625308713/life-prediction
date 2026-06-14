@@ -21,3 +21,8 @@ venv/
 node_modules/
 dist/
 build/
+
+# Local tooling / scratch
+.claude/
+generate_doc.py
+*.docx

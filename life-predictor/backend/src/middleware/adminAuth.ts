@@ -2,16 +2,25 @@ import { Request, Response, NextFunction } from "express";
 import prisma from "../prisma/client";
 import { v4 as uuidv4 } from "uuid";
 
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin123";
-
 export async function adminLogin(
   req: Request,
   res: Response
 ): Promise<void> {
   try {
+    // No default fallback: an unset ADMIN_PASSWORD disables admin entirely
+    // instead of silently accepting a well-known password.
+    const adminPassword = process.env.ADMIN_PASSWORD;
+    if (!adminPassword) {
+      console.error(
+        "[Admin] ADMIN_PASSWORD is not configured; admin login is disabled"
+      );
+      res.status(503).json({ error: "后台未启用" });
+      return;
+    }
+
     const { password } = req.body;
 
-    if (!password || password !== ADMIN_PASSWORD) {
+    if (!password || password !== adminPassword) {
       res.status(401).json({ error: "密码错误" });
       return;
     }

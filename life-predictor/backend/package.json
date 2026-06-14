@@ -1,7 +1,7 @@
 {
   "name": "life-predictor-backend",
   "version": "1.0.0",
-  "description": "寿命预测工具 - 后端服务",
+  "description": "LifeScore health-span scorecard backend service",
   "main": "dist/index.js",
   "engines": {
     "node": ">=18.0.0"
@@ -9,10 +9,13 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
+    "test": "vitest run",
     "start": "node dist/index.js",
     "migrate": "npx prisma migrate deploy",
     "migrate:dev": "npx prisma migrate dev",
     "seed": "tsx prisma/seed.ts",
+    "calibrate": "tsx scripts/algorithm-calibration.ts",
+    "dev:db": "tsx scripts/dev-db.ts",
     "generate": "npx prisma generate",
     "postinstall": "npx prisma generate"
   },
@@ -21,15 +24,19 @@
     "cors": "^2.8.5",
     "express": "^4.21.1",
     "express-rate-limit": "^7.4.1",
+    "helmet": "^8.2.0",
     "uuid": "^10.0.0"
   },
   "devDependencies": {
+    "@embedded-postgres/windows-x64": "^16.11.0-beta.15",
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
     "@types/marked": "^5.0.2",
     "@types/uuid": "^10.0.0",
+    "embedded-postgres": "^16.11.0-beta.15",
     "prisma": "^5.22.0",
     "tsx": "^4.19.2",
-    "typescript": "^5.6.3"
+    "typescript": "^5.6.3",
+    "vitest": "^4.1.8"
   }
 }

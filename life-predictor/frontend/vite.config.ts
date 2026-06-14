@@ -14,6 +14,16 @@ export default defineConfig({
   },
   build: {
     outDir: "../dist/public",
+    emptyOutDir: true,
     sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          react: ["react", "react-dom", "react-router-dom"],
+          recharts: ["recharts"],
+          markdown: ["react-markdown"],
+        },
+      },
+    },
   },
 });

@@ -3,6 +3,8 @@ import ReactMarkdown from "react-markdown";
 import { useLanguage } from "../hooks/useLanguage";
 import LanguageSwitch from "../components/LanguageSwitch";
 import AdminCharts from "../components/AdminCharts";
+import * as api from "../utils/api";
+import { ApiError } from "../utils/api";
 import type { AdminStats, AdminPredictionList, AdminPrediction } from "../types";
 
 type Tab = "dashboard" | "list";
@@ -39,29 +41,12 @@ export default function Admin() {
   const [detailData, setDetailData] = useState<Record<string, any> | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
 
-  const headers = useCallback(
-    () => ({
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    }),
-    [token]
-  );
-
   // Login
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoginError("");
     try {
-      const res = await fetch("/api/admin/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password }),
-      });
-      if (!res.ok) {
-        setLoginError(t.admin.loginError);
-        return;
-      }
-      const data = await res.json();
+      const data = await api.adminLogin(password);
       setToken(data.token);
       sessionStorage.setItem("admin_token", data.token);
     } catch {
@@ -71,7 +56,7 @@ export default function Admin() {
 
   const handleLogout = async () => {
     try {
-      await fetch("/api/admin/logout", { method: "POST", headers: headers() });
+      if (token) await api.adminLogout(token);
     } catch { /* ignore */ }
     setToken(null);
     sessionStorage.removeItem("admin_token");
@@ -79,20 +64,30 @@ export default function Admin() {
     setPredictions(null);
   };
 
+  const handleAuthError = (error: unknown): boolean => {
+    if (error instanceof ApiError && error.status === 401) {
+      handleLogout();
+      return true;
+    }
+    return false;
+  };
+
   // Fetch stats
   const fetchStats = useCallback(async () => {
+    if (!token) return;
     setStatsLoading(true);
     try {
-      const res = await fetch("/api/admin/stats", { headers: headers() });
-      if (res.status === 401) { handleLogout(); return; }
-      const data = await res.json();
-      setStats(data);
-    } catch { /* ignore */ }
+      setStats(await api.adminStats(token));
+    } catch (error) {
+      handleAuthError(error);
+    }
     setStatsLoading(false);
-  }, [headers]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
 
   // Fetch list
   const fetchList = useCallback(async () => {
+    if (!token) return;
     setListLoading(true);
     try {
       const params = new URLSearchParams();
@@ -105,40 +100,52 @@ export default function Admin() {
       if (filters.leMin) params.set("leMin", filters.leMin);
       if (filters.leMax) params.set("leMax", filters.leMax);
 
-      const res = await fetch(`/api/admin/predictions?${params}`, { headers: headers() });
-      if (res.status === 401) { handleLogout(); return; }
-      const data = await res.json();
-      setPredictions(data);
-    } catch { /* ignore */ }
+      setPredictions(await api.adminPredictions(token, params));
+    } catch (error) {
+      handleAuthError(error);
+    }
     setListLoading(false);
-  }, [page, filters, headers]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, filters, token]);
 
   // Fetch detail
   const fetchDetail = async (id: string) => {
+    if (!token) return;
     setDetailId(id);
     setDetailLoading(true);
     try {
-      const res = await fetch(`/api/admin/predictions/${id}`, { headers: headers() });
-      if (res.status === 401) { handleLogout(); return; }
-      const data = await res.json();
-      setDetailData(data);
-    } catch { /* ignore */ }
+      setDetailData(await api.adminPredictionDetail(token, id));
+    } catch (error) {
+      handleAuthError(error);
+    }
     setDetailLoading(false);
   };
 
   // Export CSV
   const exportCSV = async () => {
+    if (!token) return;
     try {
-      const res = await fetch("/api/admin/predictions/export/csv", { headers: headers() });
-      if (res.status === 401) { handleLogout(); return; }
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `life_predictions_${new Date().toISOString().split("T")[0]}.csv`;
-      a.click();
-      URL.revokeObjectURL(url);
-    } catch { /* ignore */ }
+      await api.downloadCsv(
+        "/api/admin/predictions/export/csv",
+        token,
+        `lifescore_results_${new Date().toISOString().split("T")[0]}.csv`
+      );
+    } catch (error) {
+      handleAuthError(error);
+    }
+  };
+
+  const exportLeadsCSV = async () => {
+    if (!token) return;
+    try {
+      await api.downloadCsv(
+        "/api/admin/leads/export/csv",
+        token,
+        `lifescore_leads_${new Date().toISOString().split("T")[0]}.csv`
+      );
+    } catch (error) {
+      handleAuthError(error);
+    }
   };
 
   useEffect(() => {
@@ -234,6 +241,39 @@ export default function Admin() {
                 </div>
               )}
               {stats && <AdminCharts stats={stats} />}
+              {stats && (
+                <section className="card mt-6">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <h2 className="text-lg font-bold text-gray-800">
+                        {language === "zh" ? "转化漏斗（近 30 天）" : "Funnel (last 30 days)"}
+                      </h2>
+                      <p className="mt-1 text-sm text-gray-500">
+                        {language === "zh"
+                          ? `已收集邮箱：${stats.leadsCount ?? 0}`
+                          : `Leads captured: ${stats.leadsCount ?? 0}`}
+                      </p>
+                    </div>
+                    <button onClick={exportLeadsCSV} className="btn-secondary text-sm py-2 px-4">
+                      {language === "zh" ? "导出邮箱 CSV" : "Export leads CSV"}
+                    </button>
+                  </div>
+                  {stats.funnel && stats.funnel.length > 0 ? (
+                    <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
+                      {stats.funnel.map((item) => (
+                        <div key={item.type} className="rounded-lg border border-gray-200 bg-gray-50 p-3">
+                          <p className="text-xs font-semibold text-gray-500">{item.type}</p>
+                          <p className="mt-1 text-2xl font-black text-gray-800">{item.count}</p>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="mt-4 text-sm text-gray-400">
+                      {language === "zh" ? "暂无事件数据" : "No events yet"}
+                    </p>
+                  )}
+                </section>
+              )}
             </>
           )}
 
@@ -426,12 +466,12 @@ export default function Admin() {
                     </div>
                   </div>
 
-                  {/* Prediction Results */}
+                  {/* LifeScore Summary */}
                   <div>
-                    <h3 className="font-bold text-gray-700 mb-2">预测结果</h3>
+                    <h3 className="font-bold text-gray-700 mb-2">LifeScore 摘要</h3>
                     <div className="grid grid-cols-3 gap-3 text-sm">
                       <div className="p-3 bg-primary-50 rounded text-center">
-                        <p className="text-xs text-gray-500">预测寿命</p>
+                        <p className="text-xs text-gray-500">结果区间</p>
                         <p className="font-bold text-primary-600">{detailData.adjustedMin as number} - {detailData.adjustedMax as number}</p>
                       </div>
                       <div className="p-3 bg-accent-50 rounded text-center">
@@ -448,7 +488,7 @@ export default function Admin() {
                   {/* AI Report */}
                   {detailData.aiReport && (
                     <div>
-                      <h3 className="font-bold text-gray-700 mb-2">AI报告</h3>
+                      <h3 className="font-bold text-gray-700 mb-2">AI 分析</h3>
                       <div className="prose prose-sm max-w-none bg-gray-50 rounded-lg p-4">
                         <ReactMarkdown>{detailData.aiReport as string}</ReactMarkdown>
                       </div>

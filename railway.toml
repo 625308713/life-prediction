@@ -15,9 +15,9 @@ port = 3001
 # Railway 会自动注入 DATABASE_URL（添加 PostgreSQL 插件后）
 # 你需要手动设置：
 #   ADMIN_PASSWORD — 后台管理密码（必填）
-#   AI_API_BASE_URL — AI API 地址（可选）
+#   AI_API_BASE_URL — OpenAI 兼容 API 地址（可选）
 #   AI_API_KEY — AI API 密钥（可选）
-#   AI_MODEL — AI 模型名（可选）
+#   AI_MODEL — AI 模型名（可选；不填则跳过 AI 报告）
 [variables]
 NODE_ENV = "production"
 PORT = "3001"

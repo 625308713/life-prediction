@@ -1,10 +1,18 @@
 import { Router, Request, Response } from "express";
 import rateLimit from "express-rate-limit";
 import prisma from "../prisma/client";
-import { calculateLifeExpectancy } from "../services/algorithm";
+import {
+  calculateLifeExpectancy,
+  computeHealthAge,
+  computeLifeScore,
+  deriveLifeExpectancyMetrics,
+  getBaseLifeExpectancy,
+} from "../services/algorithm";
 import {
   generateAIReport,
+  isAIReportEnabled,
   PredictionSummary,
+  ReportLanguage,
 } from "../services/ai";
 
 const router = Router();
@@ -71,6 +79,7 @@ function validateQuestionnaireData(
 router.post("/", predictionLimiter, async (req: Request, res: Response): Promise<void> => {
   try {
     const data = req.body;
+    const language: ReportLanguage = data.language === "en" ? "en" : "zh";
 
     // Server-side validation
     const validationError = validateQuestionnaireData(data);
@@ -150,6 +159,7 @@ router.post("/", predictionLimiter, async (req: Request, res: Response): Promise
       topStrengths: result.topStrengths,
       potentialGain: result.potentialGain,
       confidenceLevel: result.confidenceLevel,
+      rawAnswers: data,
     };
 
     // Save to database
@@ -162,6 +172,8 @@ router.post("/", predictionLimiter, async (req: Request, res: Response): Promise
       gender: data.gender as string,
       age: data.age as number,
       bmi: data.bmi as number,
+      baselineLifeExpectancy: result.baselineLifeExpectancy,
+      adjustedLifeExpectancy: result.adjustedLifeExpectancy,
       baseLifeExpectancy: result.baseLifeExpectancy,
       adjustedMin: result.adjustedMin,
       adjustedMax: result.adjustedMax,
@@ -175,7 +187,7 @@ router.post("/", predictionLimiter, async (req: Request, res: Response): Promise
     };
 
     // Fire-and-forget: generate AI report in background
-    generateAIReport(data as Record<string, unknown>, predictionSummary)
+    generateAIReport(data as Record<string, unknown>, predictionSummary, language)
       .then(async (report) => {
         if (report) {
           await prisma.prediction.update({
@@ -198,6 +210,8 @@ router.post("/", predictionLimiter, async (req: Request, res: Response): Promise
     // Return response immediately (without waiting for AI)
     res.json({
       id: prediction.id,
+      baselineLifeExpectancy: result.baselineLifeExpectancy,
+      adjustedLifeExpectancy: result.adjustedLifeExpectancy,
       baseLifeExpectancy: result.baseLifeExpectancy,
       adjustedMin: result.adjustedMin,
       adjustedMax: result.adjustedMax,
@@ -209,10 +223,70 @@ router.post("/", predictionLimiter, async (req: Request, res: Response): Promise
       confidenceLevel: result.confidenceLevel,
       percentile: result.percentile,
       totalAdjustment: result.totalAdjustment,
+      lifeScore: result.lifeScore,
+      age: data.age,
+      healthAge: result.healthAge,
+      healthAgeDelta: result.healthAgeDelta,
+      aiReportEnabled: isAIReportEnabled(),
     });
   } catch (error) {
     console.error("[Prediction] Error creating prediction:", error);
-    res.status(500).json({ error: "预测计算失败，请稍后重试" });
+    res.status(500).json({ error: "LifeScore 结果生成失败，请稍后重试" });
+  }
+});
+
+// Get share-safe prediction summary by ID.
+router.get("/:id/share", async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+
+    const prediction = await prisma.prediction.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        age: true,
+        gender: true,
+        baseLifeExpectancy: true,
+        topRisks: true,
+        topStrengths: true,
+        potentialGain: true,
+        confidenceLevel: true,
+      },
+    });
+
+    if (!prediction) {
+      res.status(404).json({ error: "未找到该分享结果" });
+      return;
+    }
+
+    const adjustedLifeExpectancy = prediction.baseLifeExpectancy;
+    const metrics = deriveLifeExpectancyMetrics(
+      prediction.gender,
+      adjustedLifeExpectancy,
+      prediction.age
+    );
+
+    res.json({
+      id: prediction.id,
+      topRisks: prediction.topRisks,
+      topStrengths: prediction.topStrengths,
+      potentialGain: prediction.potentialGain,
+      confidenceLevel: prediction.confidenceLevel,
+      percentile: metrics.percentile,
+      totalAdjustment: metrics.totalAdjustment,
+      lifeScore: computeLifeScore(
+        metrics.percentile,
+        metrics.totalAdjustment,
+        prediction.confidenceLevel
+      ),
+      // Public share page gets the delta only, never the actual age.
+      healthAgeDelta:
+        computeHealthAge(prediction.age, metrics.totalAdjustment) -
+        prediction.age,
+    });
+  } catch (error) {
+    console.error("[Prediction] Error fetching share summary:", error);
+    res.status(500).json({ error: "获取分享结果失败" });
   }
 });
 
@@ -243,14 +317,36 @@ router.get("/:id", async (req: Request, res: Response): Promise<void> => {
     });
 
     if (!prediction) {
-      res.status(404).json({ error: "未找到该预测记录" });
+      res.status(404).json({ error: "未找到该 LifeScore 结果" });
       return;
     }
 
-    res.json(prediction);
+    const adjustedLifeExpectancy = prediction.baseLifeExpectancy;
+    const metrics = deriveLifeExpectancyMetrics(
+      prediction.gender,
+      adjustedLifeExpectancy,
+      prediction.age
+    );
+
+    res.json({
+      ...prediction,
+      baselineLifeExpectancy: getBaseLifeExpectancy(prediction.gender, prediction.age),
+      adjustedLifeExpectancy,
+      ...metrics,
+      lifeScore: computeLifeScore(
+        metrics.percentile,
+        metrics.totalAdjustment,
+        prediction.confidenceLevel
+      ),
+      healthAge: computeHealthAge(prediction.age, metrics.totalAdjustment),
+      healthAgeDelta:
+        computeHealthAge(prediction.age, metrics.totalAdjustment) -
+        prediction.age,
+      aiReportEnabled: isAIReportEnabled(),
+    });
   } catch (error) {
     console.error("[Prediction] Error fetching prediction:", error);
-    res.status(500).json({ error: "获取预测记录失败" });
+    res.status(500).json({ error: "获取 LifeScore 结果失败" });
   }
 });
 

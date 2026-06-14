@@ -91,7 +91,7 @@ model Prediction {
   gripStrength          String? // strong, normal, weak
   unintendedWeightLoss  Boolean? @default(false)
 
-  // 预测结果
+  // LifeScore result metrics
   baseLifeExpectancy Float
   adjustedMin        Float
   adjustedMax        Float
@@ -106,6 +106,9 @@ model Prediction {
   aiReport           String?  @db.Text
   aiReportGeneratedAt DateTime?
 
+  // 完整问卷原始答案（v2 字段不再丢失；用于重算、审计和算法迭代）
+  rawAnswers         Json?
+
   @@index([createdAt])
   @@index([gender])
   @@index([age])
@@ -117,4 +120,27 @@ model AdminSession {
   token     String   @unique
   createdAt DateTime @default(now())
   expiresAt DateTime
+}
+
+// Email captured on the result page (lead magnet / retest reminders).
+model Lead {
+  id           String   @id @default(cuid())
+  createdAt    DateTime @default(now())
+  email        String
+  predictionId String?
+  source       String   @default("result_unlock")
+  language     String   @default("zh")
+
+  @@unique([email, predictionId])
+  @@index([createdAt])
+}
+
+// Lightweight first-party funnel events. No cookies, no third parties.
+model Event {
+  id           String   @id @default(cuid())
+  createdAt    DateTime @default(now())
+  type         String
+  predictionId String?
+
+  @@index([type, createdAt])
 }

@@ -8,40 +8,64 @@
     -webkit-tap-highlight-color: transparent;
   }
   body {
-    @apply min-h-screen;
+    @apply min-h-screen bg-surface text-ink antialiased;
+    font-family: "Inter", "Segoe UI Variable", "Segoe UI", -apple-system,
+      "PingFang SC", "HarmonyOS Sans SC", "Microsoft YaHei", sans-serif;
+    font-feature-settings: "cv05", "tnum";
+  }
+  ::selection {
+    @apply bg-primary-200 text-primary-950;
   }
 }
 
 @layer components {
   .btn-primary {
-    @apply bg-primary-600 text-white px-6 py-3 rounded-lg font-medium
-           hover:bg-primary-700 active:bg-primary-800 transition-colors
-           disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply rounded-xl bg-gradient-to-b from-primary-600 to-primary-800 px-6 py-3
+           font-semibold text-white shadow-lift transition-all duration-200
+           hover:-translate-y-0.5 hover:shadow-glow
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-2
+           active:translate-y-0 active:shadow-card
+           disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-lift;
   }
   .btn-secondary {
-    @apply bg-white text-primary-600 border border-primary-300 px-6 py-3 rounded-lg font-medium
-           hover:bg-primary-50 active:bg-primary-100 transition-colors
-           disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply rounded-xl border border-line bg-white px-6 py-3 font-semibold text-primary-800
+           shadow-card transition-all duration-200
+           hover:border-primary-300 hover:bg-primary-50
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-300 focus-visible:ring-offset-2
+           active:bg-primary-100
+           disabled:cursor-not-allowed disabled:opacity-50;
   }
   .card {
-    @apply bg-white rounded-xl shadow-sm border border-gray-100 p-6;
+    @apply rounded-card border border-line bg-white p-6 shadow-card;
+  }
+  /* Dark hero card: the ceremonial surface for scores and result highlights. */
+  .card-dark {
+    @apply relative overflow-hidden rounded-card text-white shadow-glow;
+    background:
+      radial-gradient(120% 90% at 85% -10%, rgba(67, 200, 178, 0.32) 0%, transparent 55%),
+      radial-gradient(80% 60% at 10% 110%, rgba(18, 111, 104, 0.5) 0%, transparent 60%),
+      linear-gradient(150deg, #11332e 0%, #0a2420 55%, #081d1a 100%);
+  }
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full bg-primary-50 px-3 py-1
+           text-xs font-semibold text-primary-800;
   }
   .input-field {
-    @apply w-full px-4 py-3 border border-gray-300 rounded-lg
-           focus:ring-2 focus:ring-primary-500 focus:border-primary-500
-           outline-none transition-shadow text-base;
+    @apply w-full rounded-xl border border-line bg-white px-4 py-3 text-base text-ink
+           shadow-sm outline-none transition-all
+           focus:border-primary-500 focus:ring-2 focus:ring-primary-200;
   }
   .step-indicator {
-    @apply w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium
+    @apply flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold
            transition-colors;
   }
   .step-done {
-    @apply bg-primary-600 text-white;
+    @apply bg-primary-700 text-white;
   }
   .step-active {
-    @apply bg-primary-100 text-primary-700 ring-2 ring-primary-500;
+    @apply bg-accent-100 text-accent-800 ring-2 ring-accent-400;
   }
   .step-pending {
-    @apply bg-gray-200 text-gray-500;
+    @apply bg-line text-ink-faint;
   }
 }

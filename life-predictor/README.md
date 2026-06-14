@@ -1,14 +1,14 @@
-# 寿命预测 (Life Predictor)
+# LifeScore
 
-一个面向中文用户的专业寿命预测工具，基于多维度健康数据分析，通过科学算法和大模型生成个性化的寿命预测报告。
+一个轻量健康寿命评分 Web 应用。LifeScore 通过一组高信号健康问题，生成健康寿命画像、优势、优先风险、7 天行动挑战和可分享结果卡。结果用于健康教育和自我观察，不提供医学诊断。
 
 ## 功能特性
 
-- **多维度问卷**：11个维度，约55个参数，分层展示
-- **科学评分算法**：基于流行病学研究的加减分模型
-- **AI 个性化报告**：调用大模型生成专业分析报告
-- **双语支持**：中文为主，支持切换英文
-- **响应式设计**：兼容手机和 PC
+- **高信号问卷**：6 个核心步骤可生成结果，进阶问题可选
+- **LifeScore 结果卡**：展示健康寿命画像、结果区间、优势、优先风险和可信度
+- **行动挑战**：把结果转成 7 天小挑战，降低用户行动门槛
+- **分享页**：公开分享页只展示安全摘要，不暴露完整问卷和敏感细节
+- **双语支持**：支持中文和英文切换
 - **后台管理**：数据查询、统计报表、CSV 导出
 
 ## 技术栈
@@ -48,9 +48,11 @@ cp backend/.env.example backend/.env
 ```env
 DATABASE_URL=postgresql://user:password@localhost:5432/lifepredictor
 ADMIN_PASSWORD=your_admin_password_here
-AI_API_BASE_URL=https://api.anthropic.com
-AI_API_KEY=your_api_key_here
-AI_MODEL=claude-sonnet-4-20250514
+# Optional. Must be an OpenAI-compatible chat completions endpoint.
+# Leave these blank to skip AI report generation.
+AI_API_BASE_URL=
+AI_API_KEY=
+AI_MODEL=
 PORT=3001
 FRONTEND_URL=http://localhost:5173
 NODE_ENV=development
@@ -103,10 +105,10 @@ docker compose up -d
 | 变量名 | 说明 | 必填 |
 |--------|------|------|
 | `DATABASE_URL` | PostgreSQL 连接字符串 | 是 |
-| `ADMIN_PASSWORD` | 后台管理密码 | 是 |
-| `AI_API_BASE_URL` | AI API 地址 | 否（不填则跳过 AI 报告） |
+| `ADMIN_PASSWORD` | 后台管理密码（未设置时后台登录直接禁用，不再有默认密码） | 是 |
+| `AI_API_BASE_URL` | OpenAI 兼容 AI API 地址 | 否（不填则跳过 AI 报告） |
 | `AI_API_KEY` | AI API 密钥 | 否 |
-| `AI_MODEL` | AI 模型名称 | 否 |
+| `AI_MODEL` | AI 模型名称 | 否（不填则跳过 AI 报告） |
 | `PORT` | 服务端口（默认 3001） | 否 |
 | `FRONTEND_URL` | 前端地址（用于 CORS） | 否 |
 | `NODE_ENV` | 运行环境（development/production） | 否 |
@@ -117,8 +119,12 @@ docker compose up -d
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| `POST` | `/api/predictions` | 提交问卷数据，返回预测结果 |
-| `GET` | `/api/predictions/:id` | 获取预测详情和 AI 报告 |
+| `POST` | `/api/predictions` | 提交问卷数据，返回 LifeScore 结果（含健康年龄） |
+| `GET` | `/api/predictions/:id` | 获取私有结果详情和 AI 分析 |
+| `GET` | `/api/predictions/:id/share` | 获取公开分享页安全摘要（仅健康年龄差，不含真实年龄） |
+| `POST` | `/api/leads` | 结果页邮箱留资（解锁 AI 深度解读） |
+| `POST` | `/api/events` | 第一方转化埋点（类型白名单） |
+| `GET` | `/api/stats/public` | 公开完测计数（首页信任徽章） |
 | `POST` | `/api/admin/login` | 后台登录 |
 | `GET` | `/api/health` | 健康检查 |
 
@@ -126,15 +132,25 @@ docker compose up -d
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| `GET` | `/api/admin/stats` | 统计数据 |
-| `GET` | `/api/admin/predictions` | 预测列表（支持筛选分页） |
-| `GET` | `/api/admin/predictions/:id` | 预测详情 |
-| `GET` | `/api/admin/predictions/export/csv` | 导出 CSV |
+| `GET` | `/api/admin/stats` | 统计数据（含 30 天转化漏斗和 leads 计数） |
+| `GET` | `/api/admin/predictions` | 结果列表（支持筛选分页） |
+| `GET` | `/api/admin/predictions/:id` | 结果详情（含完整问卷 rawAnswers） |
+| `GET` | `/api/admin/predictions/export/csv` | 导出结果 CSV |
+| `GET` | `/api/admin/leads/export/csv` | 导出邮箱 CSV |
 | `POST` | `/api/admin/logout` | 退出登录 |
+
+### 本地开发数据库（无 Docker 时）
+
+```bash
+cd backend
+npm run dev:db   # 启动内嵌 Postgres（端口 5433）并自动应用迁移
+# 另开终端：
+$env:DATABASE_URL="postgresql://postgres:devpass@localhost:5433/lifescore_dev"; npm run dev
+```
 
 ## 评分算法
 
-基于中国 2023 年期望寿命数据（男性 75.0 岁，女性 80.0 岁），通过 11 个维度的加减分规则计算个性化寿命预测。总调整范围为 -20 ~ +20 年。
+LifeScore 以基准寿命表和问卷健康信号为基础，计算一个结果区间、健康寿命估计、同龄百分位、可信度和优先行动空间。它不是在预测一个确定日期，而是把可观察信号整理成一张可行动的优先级地图。
 
 详情见 `backend/src/services/algorithm.ts`。
 

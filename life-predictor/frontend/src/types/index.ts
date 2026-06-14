@@ -79,10 +79,44 @@ export interface QuestionnaireData {
   vo2maxLevel?: string;
   gripStrength?: string;
   unintendedWeightLoss?: boolean;
+
+  // Questionnaire v2: higher-signal product fields, kept optional for
+  // backward compatibility with saved drafts and the current database schema.
+  formVersion?: "v2";
+  region?: "china" | "us" | "other";
+  diagnosedConditions?: string[];
+  bloodPressureKnown?: string;
+  bloodSugarKnown?: string;
+  activityMinutesPerWeek?: string;
+  muscleStrengthening?: string;
+  smokingAmount?: string;
+  alcoholPattern?: string;
+  sleepDurationRange?: string;
+  sleepQuality?: string;
+  snoreOrApnea?: string;
+  dietFruitVegDays?: string;
+  processedFoodFrequency?: string;
+  stressFrequency?: string;
+  socialConnection?: string;
+  purposeLevel?: string;
+  bpSystolic?: number;
+  bpDiastolic?: number;
+  a1c?: number;
+  fastingGlucose?: number;
+  fastingGlucoseUnit?: "mgdl" | "mmoll";
+  ldlCholesterol?: number;
+  climbThreeFloors?: string;
+  walkingPace?: string;
+  cancerScreeningStatus?: string;
+  dentalCheckup?: string;
+  airPollutionExposure?: string;
+  secondhandSmoke?: string;
 }
 
 export interface PredictionResult {
   id: string;
+  baselineLifeExpectancy?: number;
+  adjustedLifeExpectancy?: number;
   baseLifeExpectancy: number;
   adjustedMin: number;
   adjustedMax: number;
@@ -94,6 +128,11 @@ export interface PredictionResult {
   confidenceLevel: number;
   percentile: number;
   totalAdjustment: number;
+  lifeScore: number;
+  age?: number;
+  healthAge?: number;
+  healthAgeDelta?: number;
+  aiReportEnabled?: boolean;
 }
 
 export interface PredictionDetail {
@@ -101,6 +140,8 @@ export interface PredictionDetail {
   createdAt: string;
   age: number;
   gender: string;
+  baselineLifeExpectancy?: number;
+  adjustedLifeExpectancy?: number;
   baseLifeExpectancy: number;
   adjustedMin: number;
   adjustedMax: number;
@@ -110,8 +151,26 @@ export interface PredictionDetail {
   topStrengths: string[];
   potentialGain: number;
   confidenceLevel: number;
+  percentile: number;
+  totalAdjustment: number;
+  lifeScore: number;
+  healthAge?: number;
+  healthAgeDelta?: number;
+  aiReportEnabled: boolean;
   aiReport: string | null;
   aiReportGeneratedAt: string | null;
+}
+
+export interface PredictionShare {
+  id: string;
+  topRisks: string[];
+  topStrengths: string[];
+  potentialGain: number;
+  confidenceLevel: number;
+  percentile: number;
+  totalAdjustment: number;
+  lifeScore: number;
+  healthAgeDelta?: number;
 }
 
 export interface AdminStats {
@@ -125,6 +184,8 @@ export interface AdminStats {
   bmiDistribution: Record<string, number>;
   lifeExpectancyDistribution: Record<string, number>;
   top10Risks: { name: string; count: number }[];
+  leadsCount?: number;
+  funnel?: { type: string; count: number }[];
 }
 
 export interface AdminPrediction {

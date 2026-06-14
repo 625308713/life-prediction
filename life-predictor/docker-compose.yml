@@ -30,9 +30,10 @@ services:
     environment:
       DATABASE_URL: postgresql://lifepredictor:lifepredictor_pwd@postgres:5432/lifepredictor
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin123}
-      AI_API_BASE_URL: ${AI_API_BASE_URL:-https://api.anthropic.com}
+      # Optional. Must be an OpenAI-compatible chat completions endpoint.
+      AI_API_BASE_URL: ${AI_API_BASE_URL:-}
       AI_API_KEY: ${AI_API_KEY:-}
-      AI_MODEL: ${AI_MODEL:-claude-sonnet-4-20250514}
+      AI_MODEL: ${AI_MODEL:-}
       PORT: "3001"
       NODE_ENV: production
       FRONTEND_URL: ""

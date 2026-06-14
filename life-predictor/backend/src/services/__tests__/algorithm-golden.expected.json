@@ -1,0 +1,147 @@
+{
+  "healthy_34_male_v2": {
+    "baselineLifeExpectancy": 75,
+    "adjustedLifeExpectancy": 89,
+    "baseLifeExpectancy": 89,
+    "adjustedMin": 84,
+    "adjustedMax": 94,
+    "healthLifespan": 78,
+    "dimensionScores": {
+      "基础生物特征": 0,
+      "疾病与健康状况": 3,
+      "家族遗传史": 3,
+      "生活方式": 9.7,
+      "心理与社会因素": 6.5,
+      "环境与职业": 0,
+      "行为与认知模式": 0,
+      "睡眠深度指标": 0,
+      "免疫与炎症": 0,
+      "医疗资源获取": 0,
+      "进阶选填项": 0
+    },
+    "topRisks": [
+      "sedentary_4_8h"
+    ],
+    "topStrengths": [
+      "parents_longevity_both",
+      "recommended_activity",
+      "balanced_diet"
+    ],
+    "potentialGain": 1,
+    "confidenceLevel": 88,
+    "percentile": 96,
+    "totalAdjustment": 14,
+    "lifeScore": 92,
+    "healthAge": 23,
+    "healthAgeDelta": -11
+  },
+  "heavy_smoker_52_female": {
+    "baselineLifeExpectancy": 80,
+    "adjustedLifeExpectancy": 60,
+    "baseLifeExpectancy": 60,
+    "adjustedMin": 55,
+    "adjustedMax": 65,
+    "healthLifespan": 53,
+    "dimensionScores": {
+      "基础生物特征": -4,
+      "疾病与健康状况": -10,
+      "家族遗传史": 0,
+      "生活方式": -23.7,
+      "心理与社会因素": -8,
+      "环境与职业": -2,
+      "行为与认知模式": 0,
+      "睡眠深度指标": 0,
+      "免疫与炎症": 0,
+      "医疗资源获取": 0,
+      "进阶选填项": 0
+    },
+    "topRisks": [
+      "current_heavy_smoker",
+      "chronic_diseases",
+      "stage2_hypertension"
+    ],
+    "topStrengths": [],
+    "potentialGain": 19,
+    "confidenceLevel": 95,
+    "percentile": 1,
+    "totalAdjustment": -20,
+    "lifeScore": 35,
+    "healthAge": 64,
+    "healthAgeDelta": 12
+  },
+  "elderly_80_male": {
+    "baselineLifeExpectancy": 88.3,
+    "adjustedLifeExpectancy": 86.4,
+    "baseLifeExpectancy": 86.4,
+    "adjustedMin": 81.4,
+    "adjustedMax": 91.4,
+    "healthLifespan": 80,
+    "dimensionScores": {
+      "基础生物特征": 0,
+      "疾病与健康状况": -1.5,
+      "家族遗传史": 0,
+      "生活方式": 0.2999999999999998,
+      "心理与社会因素": 1.5,
+      "环境与职业": 0,
+      "行为与认知模式": 0,
+      "睡眠深度指标": 0,
+      "免疫与炎症": 0,
+      "医疗资源获取": 0,
+      "进阶选填项": -4.2
+    },
+    "topRisks": [
+      "insufficient_sleep",
+      "stage1_hypertension",
+      "unintended_weight_loss"
+    ],
+    "topStrengths": [
+      "moderate_exercise",
+      "no_chronic_disease",
+      "regular_checkup"
+    ],
+    "potentialGain": 6.2,
+    "confidenceLevel": 95,
+    "percentile": 40,
+    "totalAdjustment": -2,
+    "lifeScore": 60,
+    "healthAge": 82,
+    "healthAgeDelta": 2
+  },
+  "minimal_legacy_28_female": {
+    "baselineLifeExpectancy": 80,
+    "adjustedLifeExpectancy": 81.8,
+    "baseLifeExpectancy": 81.8,
+    "adjustedMin": 76.8,
+    "adjustedMax": 86.8,
+    "healthLifespan": 72,
+    "dimensionScores": {
+      "基础生物特征": 0,
+      "疾病与健康状况": 1,
+      "家族遗传史": 0,
+      "生活方式": 0.2999999999999998,
+      "心理与社会因素": 0.5,
+      "环境与职业": 0,
+      "行为与认知模式": 0,
+      "睡眠深度指标": 0,
+      "免疫与炎症": 0,
+      "医疗资源获取": 0,
+      "进阶选填项": 0
+    },
+    "topRisks": [
+      "sedentary_above_8h",
+      "insufficient_sleep"
+    ],
+    "topStrengths": [
+      "balanced_diet",
+      "moderate_exercise",
+      "no_chronic_disease"
+    ],
+    "potentialGain": 4.7,
+    "confidenceLevel": 95,
+    "percentile": 59,
+    "totalAdjustment": 1.8,
+    "lifeScore": 69,
+    "healthAge": 27,
+    "healthAgeDelta": -1
+  }
+}

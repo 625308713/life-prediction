@@ -31,6 +31,8 @@ router.get("/stats", async (_req: Request, res: Response): Promise<void> => {
       bmiDistribution,
       lifeExpectancyDistribution,
       riskFactorCounts,
+      leadsCount,
+      funnelEvents,
     ] = await Promise.all([
       // Total count
       prisma.prediction.count(),
@@ -40,7 +42,7 @@ router.get("/stats", async (_req: Request, res: Response): Promise<void> => {
         where: { createdAt: { gte: todayStart } },
       }),
 
-      // Average life expectancy
+      // Average result range midpoint
       prisma.prediction.aggregate({
         _avg: { baseLifeExpectancy: true },
       }),
@@ -73,7 +75,7 @@ router.get("/stats", async (_req: Request, res: Response): Promise<void> => {
         select: { bmi: true },
       }),
 
-      // Life expectancy distribution
+      // Result range distribution
       prisma.prediction.findMany({
         select: { baseLifeExpectancy: true },
       }),
@@ -81,6 +83,16 @@ router.get("/stats", async (_req: Request, res: Response): Promise<void> => {
       // Risk factor counts
       prisma.prediction.findMany({
         select: { topRisks: true },
+      }),
+
+      // Leads total
+      prisma.lead.count(),
+
+      // Funnel events (last 30 days)
+      prisma.event.groupBy({
+        by: ["type"],
+        where: { createdAt: { gte: thirtyDaysAgo } },
+        _count: true,
       }),
     ]);
 
@@ -116,7 +128,7 @@ router.get("/stats", async (_req: Request, res: Response): Promise<void> => {
       else bmiGroups.obese++;
     });
 
-    // Process life expectancy distribution
+    // Process result range distribution
     const leGroups = {
       "65_70": 0,
       "70_75": 0,
@@ -163,6 +175,10 @@ router.get("/stats", async (_req: Request, res: Response): Promise<void> => {
       bmiDistribution: bmiGroups,
       lifeExpectancyDistribution: leGroups,
       top10Risks,
+      leadsCount,
+      funnel: funnelEvents
+        .map((event) => ({ type: event.type, count: event._count }))
+        .sort((a, b) => b.count - a.count),
     });
   } catch (error) {
     console.error("[Admin] Stats error:", error);
@@ -234,7 +250,7 @@ router.get("/predictions", async (req: Request, res: Response): Promise<void> =>
     });
   } catch (error) {
     console.error("[Admin] List predictions error:", error);
-    res.status(500).json({ error: "获取预测列表失败" });
+    res.status(500).json({ error: "获取结果列表失败" });
   }
 });
 
@@ -255,7 +271,7 @@ router.get("/predictions/:id", async (req: Request, res: Response): Promise<void
     res.json(prediction);
   } catch (error) {
     console.error("[Admin] Get prediction detail error:", error);
-    res.status(500).json({ error: "获取预测详情失败" });
+    res.status(500).json({ error: "获取结果详情失败" });
   }
 });
 
@@ -278,7 +294,7 @@ router.get("/predictions/export/csv", async (req: Request, res: Response): Promi
       "吸烟",
       "饮酒",
       "运动",
-      "预测寿命",
+      "结果区间",
       "下限",
       "上限",
       "健康寿命",
@@ -316,12 +332,45 @@ router.get("/predictions/export/csv", async (req: Request, res: Response): Promi
     res.setHeader("Content-Type", "text/csv; charset=utf-8");
     res.setHeader(
       "Content-Disposition",
-      `attachment; filename=life_predictions_${new Date().toISOString().split("T")[0]}.csv`
+      `attachment; filename=lifescore_results_${new Date().toISOString().split("T")[0]}.csv`
     );
     res.send(csvContent);
   } catch (error) {
     console.error("[Admin] Export CSV error:", error);
     res.status(500).json({ error: "导出CSV失败" });
+  }
+});
+
+// GET /api/admin/leads/export/csv - Export captured emails
+router.get("/leads/export/csv", async (_req: Request, res: Response): Promise<void> => {
+  try {
+    const leads = await prisma.lead.findMany({
+      orderBy: { createdAt: "desc" },
+    });
+
+    const headers = ["邮箱", "提交时间", "来源", "语言", "关联结果ID"];
+    const csvRows = [headers.join(",")];
+    leads.forEach((lead) => {
+      const row = [
+        lead.email,
+        lead.createdAt.toISOString(),
+        lead.source,
+        lead.language,
+        lead.predictionId || "",
+      ].map((v) => `"${String(v).replace(/"/g, '""')}"`);
+      csvRows.push(row.join(","));
+    });
+
+    const csvContent = "﻿" + csvRows.join("\n");
+    res.setHeader("Content-Type", "text/csv; charset=utf-8");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=lifescore_leads_${new Date().toISOString().split("T")[0]}.csv`
+    );
+    res.send(csvContent);
+  } catch (error) {
+    console.error("[Admin] Export leads error:", error);
+    res.status(500).json({ error: "导出失败" });
   }
 });
 

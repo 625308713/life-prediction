@@ -16,8 +16,8 @@ export default function ProgressBar({
 
   return (
     <div className="w-full space-y-2">
-      <div className="flex justify-between items-center text-sm text-gray-500">
-        <span>
+      <div className="flex items-center justify-between text-sm text-ink-faint">
+        <span className="font-semibold">
           {t.questionnaire.step
             .replace("{current}", String(currentStep + 1))
             .replace("{total}", String(totalSteps))}
@@ -26,9 +26,9 @@ export default function ProgressBar({
           {t.questionnaire.confidence}: {Math.round(confidenceLevel)}%
         </span>
       </div>
-      <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+      <div className="h-2.5 w-full overflow-hidden rounded-full bg-line">
         <div
-          className="bg-primary-500 h-2.5 rounded-full transition-all duration-500 ease-out"
+          className="h-2.5 rounded-full bg-gradient-to-r from-primary-600 via-primary-500 to-accent-400 transition-all duration-500 ease-out"
           style={{ width: `${progress}%` }}
         />
       </div>

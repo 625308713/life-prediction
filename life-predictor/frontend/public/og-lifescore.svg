@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">LifeScore health-span scorecard preview</title>
+  <desc id="desc">A dark green LifeScore social preview card with score, strengths, risks, and next steps.</desc>
+  <rect width="1200" height="630" fill="#f8f5ef"/>
+  <rect x="72" y="64" width="1056" height="502" rx="34" fill="#19312e"/>
+  <circle cx="974" cy="148" r="76" fill="#f97316"/>
+  <circle cx="984" cy="148" r="54" fill="#19312e" opacity="0.22"/>
+  <rect x="112" y="112" width="92" height="92" rx="22" fill="#126f68"/>
+  <text x="158" y="168" fill="#ffffff" text-anchor="middle" font-size="34" font-family="Arial, sans-serif" font-weight="800">LS</text>
+  <text x="112" y="275" fill="#f2d27c" font-size="24" font-family="Arial, sans-serif" font-weight="800" letter-spacing="7">LIFESCORE</text>
+  <text x="112" y="348" fill="#ffffff" font-size="64" font-family="Arial, sans-serif" font-weight="900">Health-span scorecard</text>
+  <text x="112" y="410" fill="#d6e6e0" font-size="30" font-family="Arial, sans-serif" font-weight="600">Strengths, priority risks, and the next small move.</text>
+  <rect x="112" y="455" width="228" height="58" rx="14" fill="#ffffff"/>
+  <text x="226" y="492" fill="#19312e" text-anchor="middle" font-size="24" font-family="Arial, sans-serif" font-weight="800">Take the quiz</text>
+  <rect x="772" y="292" width="238" height="166" rx="26" fill="#ffffff" opacity="0.1"/>
+  <text x="812" y="386" fill="#ffffff" font-size="90" font-family="Arial, sans-serif" font-weight="900">82</text>
+  <text x="820" y="426" fill="#d6e6e0" font-size="22" font-family="Arial, sans-serif" font-weight="700">LifeScore</text>
+</svg>

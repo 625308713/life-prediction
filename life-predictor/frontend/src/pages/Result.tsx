@@ -2,11 +2,15 @@ import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useLanguage } from "../hooks/useLanguage";
 import LanguageSwitch from "../components/LanguageSwitch";
+import LegalLinks from "../components/LegalLinks";
 import ResultReport from "../components/ResultReport";
+import { setPageSeo } from "../utils/seo";
+import { getPrediction } from "../utils/api";
+import { trackOncePerSession } from "../utils/analytics";
 import type { PredictionResult } from "../types";
 
 export default function Result() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { id } = useParams<{ id: string }>();
   const location = useLocation();
   const navigate = useNavigate();
@@ -17,15 +21,31 @@ export default function Result() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    setPageSeo({
+      title: language === "zh" ? "LifeScore 结果卡" : "LifeScore Result",
+      description:
+        language === "zh"
+          ? "查看你的 LifeScore 完整结果、优势、优先风险和行动建议。"
+          : "View your full LifeScore result, strengths, priority risks, and next-step guidance.",
+      path: id ? `/result/${id}` : "/result",
+      robots: "noindex, nofollow",
+    });
+  }, [id, language]);
+
+  useEffect(() => {
+    if (id) trackOncePerSession("result_view", id);
+  }, [id]);
+
+  useEffect(() => {
     if (result || !id) return;
 
     const fetchResult = async () => {
       try {
-        const res = await fetch(`/api/predictions/${id}`);
-        if (!res.ok) throw new Error("Not found");
-        const data = await res.json();
+        const data = await getPrediction(id);
         setResult({
           id: data.id,
+          baselineLifeExpectancy: data.baselineLifeExpectancy,
+          adjustedLifeExpectancy: data.adjustedLifeExpectancy,
           baseLifeExpectancy: data.baseLifeExpectancy,
           adjustedMin: data.adjustedMin,
           adjustedMax: data.adjustedMax,
@@ -35,8 +55,13 @@ export default function Result() {
           topStrengths: data.topStrengths,
           potentialGain: data.potentialGain,
           confidenceLevel: data.confidenceLevel,
-          percentile: 50,
-          totalAdjustment: 0,
+          percentile: data.percentile,
+          totalAdjustment: data.totalAdjustment,
+          lifeScore: data.lifeScore,
+          age: data.age,
+          healthAge: data.healthAge,
+          healthAgeDelta: data.healthAgeDelta,
+          aiReportEnabled: data.aiReportEnabled,
         });
       } catch {
         setError(t.app.error);
@@ -71,10 +96,12 @@ export default function Result() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="bg-white border-b border-gray-200 px-4 py-3 sticky top-0 z-10">
-        <div className="max-w-3xl mx-auto flex items-center justify-between">
-          <h1 className="text-lg font-bold text-gray-800">{t.app.title}</h1>
+    <div className="min-h-screen flex flex-col bg-surface">
+      <header className="bg-surface/90 backdrop-blur border-b border-line px-4 py-3 sticky top-0 z-10">
+        <div className="max-w-5xl mx-auto flex items-center justify-between">
+          <h1 className="text-lg font-black text-ink">
+            {language === "zh" ? "LifeScore 结果卡" : "LifeScore Result"}
+          </h1>
           <div className="flex items-center gap-3">
             <button onClick={() => navigate("/")} className="btn-secondary text-sm py-1.5 px-3">
               {t.result.newPrediction}
@@ -87,6 +114,9 @@ export default function Result() {
       <main className="flex-1 px-4 py-8">
         {id && <ResultReport result={result} predictionId={id} />}
       </main>
+      <footer className="px-4 pb-6">
+        <LegalLinks />
+      </footer>
     </div>
   );
 }

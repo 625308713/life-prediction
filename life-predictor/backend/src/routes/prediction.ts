@@ -17,12 +17,27 @@ import {
 
 const router = Router();
 
+const RATE_WINDOW_MS = 60 * 60 * 1000;
+
+function pickLang(req: Request): ReportLanguage {
+  return req.body?.language === "en" ? "en" : "zh";
+}
+
 const predictionLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000,
-  max: 10,
-  message: { error: "提交过于频繁，请稍后再试" },
+  windowMs: RATE_WINDOW_MS,
+  max: 20,
   standardHeaders: true,
   legacyHeaders: false,
+  handler: (req, res) => {
+    const lang = pickLang(req);
+    const minutes = Math.ceil(RATE_WINDOW_MS / 60000);
+    res.status(429).json({
+      error:
+        lang === "en"
+          ? `Too many submissions. Please try again in up to ${minutes} minutes.`
+          : `提交过于频繁，请在 ${minutes} 分钟后再试。`,
+    });
+  },
 });
 
 function validateQuestionnaireData(
@@ -80,6 +95,18 @@ router.post("/", predictionLimiter, async (req: Request, res: Response): Promise
   try {
     const data = req.body;
     const language: ReportLanguage = data.language === "en" ? "en" : "zh";
+
+    // Consent is the legal basis for processing health answers: enforce it
+    // server-side, not only in the UI, so the API cannot be used without it.
+    if (data.consent !== true) {
+      res.status(400).json({
+        error:
+          language === "en"
+            ? "Consent is required before your answers can be processed."
+            : "需要先同意隐私政策与免责声明，才能处理你的作答。",
+      });
+      return;
+    }
 
     // Server-side validation
     const validationError = validateQuestionnaireData(data);
@@ -231,7 +258,13 @@ router.post("/", predictionLimiter, async (req: Request, res: Response): Promise
     });
   } catch (error) {
     console.error("[Prediction] Error creating prediction:", error);
-    res.status(500).json({ error: "LifeScore 结果生成失败，请稍后重试" });
+    const language: ReportLanguage = req.body?.language === "en" ? "en" : "zh";
+    res.status(500).json({
+      error:
+        language === "en"
+          ? "Could not generate your LifeScore result. Please try again."
+          : "LifeScore 结果生成失败，请稍后重试",
+    });
   }
 });
 

@@ -14,7 +14,8 @@ type ShareTypeKey =
   | "recovery"
   | "metabolic"
   | "prevention"
-  | "environment";
+  | "environment"
+  | "substance";
 
 type ArchetypeCopy = {
   name: string;
@@ -84,6 +85,12 @@ const riskGroups: Record<Exclude<ShareTypeKey, "steady">, string[]> = {
     "overwork",
     "noise_exposure",
     "high_risk_behaviors",
+  ],
+  substance: [
+    "current_light_smoker",
+    "current_heavy_smoker",
+    "quit_smoking_short",
+    "heavy_alcohol",
   ],
 };
 
@@ -203,6 +210,11 @@ const copy: Record<
         tagline: "工作节奏、空气、噪声或暴露正在叠加压力。",
         focus: "先减少一个每天重复出现的环境暴露。",
       },
+      substance: {
+        name: "戒断重启型",
+        tagline: "烟草或酒精是当前最值得优先处理的杠杆。",
+        focus: "设一个减量目标，并考虑戒烟门诊或替代方案。",
+      },
     },
   },
   en: {
@@ -280,14 +292,21 @@ const copy: Record<
         tagline: "Work rhythm, air, noise, or exposure is adding background load.",
         focus: "Reduce one repeated environmental exposure.",
       },
+      substance: {
+        name: "Substance Reset",
+        tagline: "Tobacco or alcohol is the highest-priority lever right now.",
+        focus: "Set a reduction target and consider a cessation clinic or support.",
+      },
     },
   },
 };
 
 function getShareType(result: PredictionShare, lifeScore: number): ShareTypeKey {
+  // #1 risk dominates so the headline issue drives the type (mirrors ResultReport).
+  const indexWeights = [5, 2, 1];
   const riskWeights = result.topRisks.reduce<Record<string, number>>(
     (acc, risk, index) => {
-      acc[risk] = 3 - index;
+      acc[risk] = indexWeights[index] ?? 1;
       return acc;
     },
     {}

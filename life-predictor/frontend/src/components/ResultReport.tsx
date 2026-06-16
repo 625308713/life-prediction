@@ -119,6 +119,14 @@ const copy = {
     trackerDay: "第 {n} 天",
     trackerProgress: "已完成 {done}/7 天",
     trackerComplete: "7 天完成！习惯已经开始成形——90 天后回来复测，看看分数变化。",
+    noRiskYet: "暂无高优先级风险",
+    noStrengthYet: "暂无特别突出的优势，先把基础稳住",
+    medicalBannerTitle: "建议尽快线下评估",
+    medicalBannerBody: "你的回答里有需要专业判断的信号（如血压/血糖偏高、长期不适或体重明显变化）。请把结果当作提醒，尽快安排体检或咨询医生，不要仅凭本页结论自行处理。",
+    rangeYoungNote: "你还年轻，这个区间只是当前习惯的粗略外推，可塑性很高，真正该看的是健康年龄和可改善空间。",
+    unlockBenefit: "解锁后你会看到：针对你具体作答的个性化解读、最该优先改善的 3 件事的展开说明，以及结果找回链接。",
+    dimensionBarsTitle: "各维度得分",
+    unknownDataHint: "你有一些关键健康信息选择了“不知道”。补充血压、血糖或体检数据后，分数和可信度会更准。",
   },
   en: {
     brand: "LifeScore",
@@ -224,6 +232,14 @@ const copy = {
     trackerDay: "Day {n}",
     trackerProgress: "{done}/7 days done",
     trackerComplete: "7 days complete! The habit is taking shape — come back in 90 days to see your score move.",
+    noRiskYet: "No high-priority risks yet",
+    noStrengthYet: "No standout strengths yet — focus on stabilizing the basics",
+    medicalBannerTitle: "Consider an in-person check soon",
+    medicalBannerBody: "Some of your answers carry signals that deserve professional judgment (such as high blood pressure or glucose, ongoing discomfort, or notable weight change). Treat this as a prompt to book a checkup or talk with a clinician, not as something to manage from this page alone.",
+    rangeYoungNote: "You are still young, so this range is only a rough extrapolation of current habits with high plasticity. What matters more is your health age and room to improve.",
+    unlockBenefit: "Once unlocked you will see: a personalized read of your specific answers, an expanded version of your top 3 priorities, and a recovery link for this result.",
+    dimensionBarsTitle: "Dimension scores",
+    unknownDataHint: "You answered \"don't know\" to some key health items. Adding blood pressure, glucose, or checkup data will make the score and confidence more accurate.",
   },
 };
 
@@ -244,7 +260,8 @@ type ArchetypeKey =
   | "recovery_first"
   | "metabolic_tune"
   | "prevention_catchup"
-  | "environment_reset";
+  | "environment_reset"
+  | "substance_reset";
 
 type ArchetypeContent = {
   name: string;
@@ -333,6 +350,15 @@ const archetypeCopy: Record<Language, Record<ArchetypeKey, ArchetypeContent>> = 
       signal: "环境暴露、工作时长、噪声或二手烟风险靠前",
       focus: "先把一个固定空间变成低烟、低噪或可站立活动的环境。",
     },
+    substance_reset: {
+      name: "戒断重启型",
+      shortName: "戒断型",
+      tagline: "烟草或酒精是你当前最值得优先处理的杠杆。",
+      description:
+        "在你的画像里，烟草或过量饮酒是影响最大、也最可改变的风险。先把这一项稳住，其他改变会更容易见效。",
+      signal: "吸烟或过量饮酒相关风险靠前",
+      focus: "设一个明确的减量目标，并考虑戒烟门诊或替代方案。",
+    },
   },
   en: {
     steady_builder: {
@@ -388,6 +414,15 @@ const archetypeCopy: Record<Language, Record<ArchetypeKey, ArchetypeContent>> = 
         "Air, smoke, noise, long sitting, and long work hours can add up quietly. Start by changing one repeated exposure.",
       signal: "Environment, work hours, noise, or secondhand-smoke risks appear first",
       focus: "Make one regular space lower-smoke, lower-noise, or easier to move in.",
+    },
+    substance_reset: {
+      name: "Substance Reset",
+      shortName: "Reset",
+      tagline: "Tobacco or alcohol is your highest-priority lever right now.",
+      description:
+        "In your profile, tobacco or heavy alcohol is the highest-impact and most changeable risk. Stabilize this first and other changes get easier.",
+      signal: "Smoking or heavy-drinking risks rank high",
+      focus: "Set a clear reduction target and consider a cessation clinic or support.",
     },
   },
 };
@@ -448,6 +483,12 @@ const archetypeRiskSignals: Record<Exclude<ArchetypeKey, "steady_builder">, stri
     "overwork",
     "noise_exposure",
     "high_risk_behaviors",
+  ],
+  substance_reset: [
+    "current_light_smoker",
+    "current_heavy_smoker",
+    "quit_smoking_short",
+    "heavy_alcohol",
   ],
 };
 
@@ -877,8 +918,12 @@ const factorInsights: Record<
 };
 
 function getArchetype(result: PredictionResult, lifeScore: number): ArchetypeKey {
+  // The #1 risk gets a dominant weight so the headline issue (e.g. heavy
+  // smoking) drives the archetype instead of being outvoted by common
+  // secondary risks like sedentary time.
+  const indexWeights = [5, 2, 1];
   const riskWeights = result.topRisks.reduce<Record<string, number>>((acc, risk, index) => {
-    acc[risk] = 3 - index;
+    acc[risk] = indexWeights[index] ?? 1;
     return acc;
   }, {});
 
@@ -1223,6 +1268,21 @@ export default function ResultReport({ result, predictionId }: Props) {
 
   // The headline score is computed server-side (algorithm.ts computeLifeScore).
   const lifeScore = result.lifeScore;
+  const userAge = result.age ?? null;
+  const isYoung = userAge !== null && userAge < 30;
+  // Red-flag risks that warrant a prominent "see a clinician" prompt.
+  const MEDICAL_FLAGS = [
+    "stage2_hypertension",
+    "diabetes",
+    "very_high_ldl",
+    "unintended_weight_loss",
+    "current_heavy_smoker",
+    "cancer_history",
+  ];
+  const needsMedical =
+    result.topRisks.some((r) => MEDICAL_FLAGS.includes(r)) || lifeScore < 40;
+  // Whether the user left key clinical inputs unknown (lower-confidence result).
+  const hasUnknownKeyData = result.confidenceLevel < 70;
   const archetypeKey = useMemo(
     () => getArchetype(result, lifeScore),
     [lifeScore, result]
@@ -1444,6 +1504,12 @@ export default function ResultReport({ result, predictionId }: Props) {
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
+      {needsMedical && (
+        <section className="rounded-card border-l-4 border-l-red-500 bg-red-50 p-5">
+          <p className="text-sm font-black text-red-800">{text.medicalBannerTitle}</p>
+          <p className="mt-2 text-sm leading-6 text-red-900">{text.medicalBannerBody}</p>
+        </section>
+      )}
       <section className="card-dark animate-fade-up">
         <div className="grid gap-6 p-6 sm:p-8 lg:grid-cols-[1fr_320px] lg:p-10">
           <div>
@@ -1497,22 +1563,33 @@ export default function ResultReport({ result, predictionId }: Props) {
               </div>
             )}
             <div className="mt-7 grid gap-3 sm:grid-cols-3">
-              <div className="rounded-lg bg-white/10 p-4">
-                <p className="text-xs text-white/55">{text.rangeLabel}</p>
-                <p className="mt-1 text-2xl font-black">
-                  {result.adjustedMin}-{result.adjustedMax} {text.years}
-                </p>
-                <p className="mt-2 text-xs leading-5 text-white/55">{metricNotes.range}</p>
-              </div>
-              <div className="rounded-lg bg-white/10 p-4">
-                <p className="text-xs text-white/55">{text.healthyYears}</p>
-                <p className="mt-1 text-2xl font-black">
-                  {result.healthLifespan} {text.years}
-                </p>
-                <p className="mt-2 text-xs leading-5 text-white/55">
-                  {metricNotes.healthyYears}
-                </p>
-              </div>
+              {isYoung ? (
+                <div className="rounded-lg bg-white/10 p-4 sm:col-span-2">
+                  <p className="text-xs text-white/55">{text.rangeLabel}</p>
+                  <p className="mt-2 text-sm font-semibold leading-6 text-white/85">
+                    {text.rangeYoungNote}
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <div className="rounded-lg bg-white/10 p-4">
+                    <p className="text-xs text-white/55">{text.rangeLabel}</p>
+                    <p className="mt-1 text-2xl font-black">
+                      {result.adjustedMin}-{result.adjustedMax} {text.years}
+                    </p>
+                    <p className="mt-2 text-xs leading-5 text-white/55">{metricNotes.range}</p>
+                  </div>
+                  <div className="rounded-lg bg-white/10 p-4">
+                    <p className="text-xs text-white/55">{text.healthyYears}</p>
+                    <p className="mt-1 text-2xl font-black">
+                      {result.healthLifespan} {text.years}
+                    </p>
+                    <p className="mt-2 text-xs leading-5 text-white/55">
+                      {metricNotes.healthyYears}
+                    </p>
+                  </div>
+                </>
+              )}
               <div className="rounded-lg bg-white/10 p-4">
                 <p className="text-xs text-white/55">{text.betterThan}</p>
                 <p className="mt-1 text-2xl font-black">{result.percentile}%</p>
@@ -1551,6 +1628,11 @@ export default function ResultReport({ result, predictionId }: Props) {
             <p className="mt-4 text-sm font-semibold text-ink-soft">
               {text.confidence}: {result.confidenceLevel}%
             </p>
+            {hasUnknownKeyData && (
+              <p className="mt-3 rounded-lg bg-primary-50 p-3 text-xs leading-5 text-primary-800">
+                {text.unknownDataHint}
+              </p>
+            )}
             {result.potentialGain > 0 && (
               <div className="mt-5 rounded-lg bg-accent-50 p-4 text-sm leading-6 text-accent-900">
                 {text.potential}{" "}
@@ -1705,7 +1787,7 @@ export default function ResultReport({ result, predictionId }: Props) {
                 );
               })
             ) : (
-              <p className="text-sm text-ink-faint">-</p>
+              <p className="text-sm text-ink-faint">{text.noStrengthYet}</p>
             )}
           </div>
         </div>
@@ -1735,7 +1817,7 @@ export default function ResultReport({ result, predictionId }: Props) {
                 );
               })
             ) : (
-              <p className="text-sm text-ink-faint">-</p>
+              <p className="text-sm text-ink-faint">{text.noRiskYet}</p>
             )}
           </div>
         </div>
@@ -1761,6 +1843,43 @@ export default function ResultReport({ result, predictionId }: Props) {
             </RadarChart>
           </ResponsiveContainer>
         </div>
+
+        <div className="mt-6 border-t border-line pt-5">
+          <p className="text-sm font-black text-ink">{text.dimensionBarsTitle}</p>
+          <div className="mt-4 space-y-2.5">
+            {radarData
+              .slice()
+              .sort((a, b) => a.score - b.score)
+              .map((d) => {
+                const pct = (Math.abs(d.score) / 10) * 50;
+                const positive = d.score >= 0;
+                return (
+                  <div key={d.dimension} className="flex items-center gap-3">
+                    <span className="w-28 shrink-0 truncate text-xs text-ink-soft" title={d.dimension}>
+                      {d.dimension}
+                    </span>
+                    <div className="relative h-2.5 flex-1 rounded-full bg-line">
+                      <span className="absolute left-1/2 top-0 h-full w-px bg-ink-faint/40" />
+                      <span
+                        className={`absolute top-0 h-full rounded-full ${
+                          positive ? "bg-primary-500" : "bg-accent-500"
+                        }`}
+                        style={
+                          positive
+                            ? { left: "50%", width: `${pct}%` }
+                            : { right: "50%", width: `${pct}%` }
+                        }
+                      />
+                    </div>
+                    <span className="w-8 shrink-0 text-right text-xs font-bold text-ink-soft">
+                      {d.score > 0 ? "+" : ""}
+                      {d.score}
+                    </span>
+                  </div>
+                );
+              })}
+          </div>
+        </div>
       </section>
 
       <section className="card">
@@ -1776,6 +1895,9 @@ export default function ResultReport({ result, predictionId }: Props) {
             <div className="border-t border-primary-100 bg-primary-50 p-5">
               <p className="text-base font-black text-ink">{text.unlockTitle}</p>
               <p className="mt-2 text-sm leading-6 text-ink-soft">{text.unlockDesc}</p>
+              <p className="mt-2 rounded-lg bg-white/70 p-3 text-xs leading-5 text-primary-800">
+                {text.unlockBenefit}
+              </p>
               <form
                 className="mt-4 flex flex-col gap-3 sm:flex-row"
                 onSubmit={(event) => {
@@ -1867,10 +1989,10 @@ export default function ResultReport({ result, predictionId }: Props) {
       </section>
 
       <section className="grid gap-4 lg:grid-cols-[1fr_360px]">
-        <div className="card">
+        <div className="card min-w-0">
           <h2 className="text-xl font-black text-ink">{text.shareTitle}</h2>
           <p className="mt-1 text-sm text-ink-faint">{text.shareDesc}</p>
-          <div className="mt-5 rounded-lg bg-surface p-4 text-sm leading-6 text-ink-soft">
+          <div className="mt-5 break-words rounded-lg bg-surface p-4 text-sm leading-6 text-ink-soft">
             {shareMessage}
           </div>
           <div className="mt-5 flex flex-wrap gap-3">
@@ -1883,13 +2005,13 @@ export default function ResultReport({ result, predictionId }: Props) {
           </div>
         </div>
 
-        <div className="card-dark p-5">
+        <div className="card-dark min-w-0 p-5">
           <div className="flex items-start justify-between gap-4 border-b border-white/15 pb-4">
-            <div>
+            <div className="min-w-0">
               <p className="text-lg font-black text-accent-300">LifeScore</p>
               <p className="mt-1 text-xs text-white/55">{text.posterTitle}</p>
             </div>
-            <p className="rounded-full border border-white/15 px-3 py-1 text-xs text-white/70">
+            <p className="shrink-0 whitespace-nowrap rounded-full border border-white/15 px-3 py-1 text-xs text-white/70">
               {text.posterPreview}
             </p>
           </div>
@@ -1916,16 +2038,16 @@ export default function ResultReport({ result, predictionId }: Props) {
               <p className="mt-2 text-sm leading-6 text-white/85">{archetype.signal}</p>
             </div>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
-              <div className="rounded-xl bg-white/10 p-4">
+              <div className="min-w-0 rounded-xl bg-white/10 p-4">
                 <p className="text-xs font-bold text-white/55">{text.shareStrength}</p>
-                <p className="mt-2 text-sm font-black">
-                  {primaryStrength ? strengthName(primaryStrength) : "-"}
+                <p className="mt-2 break-words text-sm font-black">
+                  {primaryStrength ? strengthName(primaryStrength) : text.noStrengthYet}
                 </p>
               </div>
-              <div className="rounded-xl bg-white/10 p-4">
+              <div className="min-w-0 rounded-xl bg-white/10 p-4">
                 <p className="text-xs font-bold text-white/55">{text.shareRisk}</p>
-                <p className="mt-2 text-sm font-black">
-                  {primaryRisk ? riskName(primaryRisk) : "-"}
+                <p className="mt-2 break-words text-sm font-black">
+                  {primaryRisk ? riskName(primaryRisk) : text.noRiskYet}
                 </p>
               </div>
             </div>

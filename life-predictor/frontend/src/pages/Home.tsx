@@ -419,7 +419,7 @@ export default function Home() {
     setError(null);
 
     try {
-      const result = await submitPrediction({ ...data, language });
+      const result = await submitPrediction({ ...data, language, consent: true });
       track("quiz_submit", result.id);
       clearSaved();
       navigate(`/result/${result.id}`, { state: { result } });
@@ -638,6 +638,7 @@ export default function Home() {
             <ProgressBar
               currentStep={currentStep}
               totalSteps={TOTAL_STEPS}
+              requiredSteps={REQUIRED_STEPS}
               confidenceLevel={confidenceLevel}
             />
           </div>

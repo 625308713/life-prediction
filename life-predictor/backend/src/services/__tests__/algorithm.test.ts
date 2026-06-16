@@ -113,8 +113,8 @@ describe("computeHealthAge", () => {
 });
 
 describe("computeLifeScore", () => {
-  it("stays inside the 35-99 band at the extremes", () => {
-    expect(computeLifeScore(1, -20, 50)).toBeGreaterThanOrEqual(35);
+  it("stays inside the 25-99 band at the extremes", () => {
+    expect(computeLifeScore(1, -40, 50)).toBeGreaterThanOrEqual(25);
     expect(computeLifeScore(99, 14, 95)).toBeLessThanOrEqual(99);
   });
 

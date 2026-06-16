@@ -214,7 +214,9 @@ export function computeLifeScore(
     (percentile - 50) * 0.28 +
     totalAdjustment * 1.1 +
     (confidenceLevel - 80) * 0.18;
-  return Math.min(99, Math.max(35, Math.round(raw)));
+  // Floor lowered from 35 to 25 so high-risk users spread out instead of all
+  // clamping to an identical 35 (they previously lost any differentiation).
+  return Math.min(99, Math.max(25, Math.round(raw)));
 }
 
 export function deriveLifeExpectancyMetrics(

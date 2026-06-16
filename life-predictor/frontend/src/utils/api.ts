@@ -49,7 +49,7 @@ function jsonInit(method: string, body: unknown, token?: string): RequestInit {
 // ---- Public API ----
 
 export function submitPrediction(
-  data: QuestionnaireData & { language: string }
+  data: QuestionnaireData & { language: string; consent: boolean }
 ): Promise<PredictionResult> {
   return request("/api/predictions", jsonInit("POST", data));
 }

@@ -1,5 +1,6 @@
+import { Children, cloneElement, isValidElement, useId } from "react";
 import { useLanguage } from "../../hooks/useLanguage";
-import type { ReactNode } from "react";
+import type { ReactElement, ReactNode } from "react";
 import type { Language, QuestionnaireData } from "../../types";
 
 interface Props {
@@ -673,13 +674,29 @@ function FieldGroup({
   children: ReactNode;
   hint?: string;
 }) {
+  const fieldId = useId();
+  // Associate the visible label with a single NumberInput child so screen
+  // readers announce the field name (other children keep their own labelling).
+  let labelFor: string | undefined;
+  const enhanced = Children.map(children, (child) => {
+    if (isValidElement(child) && child.type === NumberInput) {
+      labelFor = fieldId;
+      return cloneElement(child as ReactElement<{ id?: string; ariaLabel?: string }>, {
+        id: fieldId,
+        ariaLabel: label,
+      });
+    }
+    return child;
+  });
   return (
     <div>
       <div className="mb-2 flex items-end justify-between gap-3">
-        <label className="text-sm font-bold text-ink-soft">{label}</label>
+        <label htmlFor={labelFor} className="text-sm font-bold text-ink-soft">
+          {label}
+        </label>
         {hint && <span className="text-xs text-ink-faint">{hint}</span>}
       </div>
-      {children}
+      {enhanced}
     </div>
   );
 }
@@ -757,6 +774,8 @@ function NumberInput({
   suffix,
   clearLabel,
   step,
+  id,
+  ariaLabel,
 }: {
   value?: number;
   onChange: (value: number | undefined) => void;
@@ -765,12 +784,17 @@ function NumberInput({
   suffix?: string;
   clearLabel?: string;
   step?: number | string;
+  id?: string;
+  ariaLabel?: string;
 }) {
   return (
     <div>
       <div className="relative">
         <input
+          id={id}
+          aria-label={ariaLabel}
           type="number"
+          inputMode="decimal"
           className="input-field pr-16"
           value={value ?? ""}
           min={min}
@@ -1286,6 +1310,7 @@ export function BoosterBiomarkersStep({ data, onChange }: Props) {
             value={data.a1c}
             min={3}
             max={14}
+            step={0.1}
             clearLabel={text.skipValue}
             onChange={(value) => updateGlucose("a1c", value)}
           />
@@ -1306,6 +1331,7 @@ export function BoosterBiomarkersStep({ data, onChange }: Props) {
             />
           </div>
           <NumberInput
+            ariaLabel={text.labels.fastingGlucose}
             value={glucoseInputValue(data.fastingGlucose, data.fastingGlucoseUnit ?? "mgdl")}
             min={data.fastingGlucoseUnit === "mmoll" ? 2.8 : 50}
             max={data.fastingGlucoseUnit === "mmoll" ? 16.7 : 300}

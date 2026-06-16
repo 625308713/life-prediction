@@ -200,8 +200,20 @@ export function buildUserMessage(
   const dimensions = Object.entries(result.dimensionScores)
     .map(([key, value]) => `- ${key}：${value > 0 ? "+" : ""}${value}`)
     .join("\n");
+  // For young users we withhold the absolute lifespan numbers so the model
+  // cannot echo a frightening "you'll live to ~50" line; emphasize plasticity.
+  const isYoung = typeof data.age === "number" && data.age < 30;
 
   if (language === "en") {
+    const resultSummaryEn = isYoung
+      ? `- Health-span direction: below same-age peers, but at this age it is highly changeable
+- Confidence: ${result.confidenceLevel}%
+- Same-gender peer percentile: ${result.percentile}%
+- Do NOT state an absolute lifespan, age of death, or a "you will live to X" figure. This user is young; frame everything around health age, changeable risks, and improvability.`
+      : `- Estimated result range: ${result.adjustedMin} - ${result.adjustedMax} years
+- Healthy lifespan: ${result.healthLifespan} years
+- Confidence: ${result.confidenceLevel}%
+- Same-gender peer percentile: ${result.percentile}%`;
     return `Here is a summary of one user's health assessment:
 
 **Basics:**
@@ -211,10 +223,7 @@ export function buildUserMessage(
 - Waist: ${data.waistCm} cm
 
 **LifeScore result summary:**
-- Estimated result range: ${result.adjustedMin} - ${result.adjustedMax} years
-- Healthy lifespan: ${result.healthLifespan} years
-- Confidence: ${result.confidenceLevel}%
-- Same-gender peer percentile: ${result.percentile}%
+${resultSummaryEn}
 
 **Dimension scores:**
 ${dimensions}
@@ -236,6 +245,16 @@ ${answersJson}
 Please write the personalized LifeScore interpretation based on this data.`;
   }
 
+  const resultSummaryZh = isYoung
+    ? `- 健康寿命方向：低于同龄人，但这个年龄高度可改变
+- 置信度：${result.confidenceLevel}%
+- 同性别同龄百分位：${result.percentile}%
+- 不要给出绝对寿命、死亡年龄或“你只能活到 X 岁”之类的数字。该用户很年轻，请围绕健康年龄、可改变的风险和改善空间来表达。`
+    : `- 估计结果区间：${result.adjustedMin} - ${result.adjustedMax} 岁
+- 健康寿命：${result.healthLifespan} 岁
+- 置信度：${result.confidenceLevel}%
+- 同性别同龄百分位：${result.percentile}%`;
+
   return `以下是一位用户的健康评估数据摘要：
 
 **基础信息：**
@@ -245,10 +264,7 @@ Please write the personalized LifeScore interpretation based on this data.`;
 - 腰围：${data.waistCm}cm
 
 **LifeScore 结果摘要：**
-- 估计结果区间：${result.adjustedMin} - ${result.adjustedMax} 岁
-- 健康寿命：${result.healthLifespan} 岁
-- 置信度：${result.confidenceLevel}%
-- 同性别同龄百分位：${result.percentile}%
+${resultSummaryZh}
 
 **各维度得分：**
 ${dimensions}

@@ -4,24 +4,43 @@ interface ProgressBarProps {
   currentStep: number;
   totalSteps: number;
   confidenceLevel: number;
+  requiredSteps?: number;
 }
 
 export default function ProgressBar({
   currentStep,
   totalSteps,
   confidenceLevel,
+  requiredSteps,
 }: ProgressBarProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const progress = ((currentStep + 1) / totalSteps) * 100;
+
+  // Phase-aware label so "核心 6 步" on the home page stays consistent and the
+  // optional booster steps don't look like a sudden jump to 11 required steps.
+  let phaseLabel: string;
+  if (requiredSteps && currentStep < requiredSteps) {
+    phaseLabel =
+      language === "en"
+        ? `Core step ${currentStep + 1} / ${requiredSteps}`
+        : `核心 第 ${currentStep + 1} / ${requiredSteps} 步`;
+  } else if (requiredSteps) {
+    const boosterTotal = totalSteps - requiredSteps;
+    const boosterCur = currentStep - requiredSteps + 1;
+    phaseLabel =
+      language === "en"
+        ? `Optional booster ${boosterCur} / ${boosterTotal}`
+        : `进阶 第 ${boosterCur} / ${boosterTotal} 步 · 可选`;
+  } else {
+    phaseLabel = t.questionnaire.step
+      .replace("{current}", String(currentStep + 1))
+      .replace("{total}", String(totalSteps));
+  }
 
   return (
     <div className="w-full space-y-2">
       <div className="flex items-center justify-between text-sm text-ink-faint">
-        <span className="font-semibold">
-          {t.questionnaire.step
-            .replace("{current}", String(currentStep + 1))
-            .replace("{total}", String(totalSteps))}
-        </span>
+        <span className="font-semibold">{phaseLabel}</span>
         <span>
           {t.questionnaire.confidence}: {Math.round(confidenceLevel)}%
         </span>

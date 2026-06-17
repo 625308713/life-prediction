@@ -467,7 +467,7 @@ export default function Home() {
                 <span className="h-2 w-2 rounded-full bg-accent-500" />
                 {text.eyebrow}
               </div>
-              <h1 className="max-w-3xl animate-fade-up text-4xl font-black leading-[1.08] tracking-tight text-ink sm:text-5xl lg:text-6xl">
+              <h1 className="max-w-3xl animate-fade-up font-serif text-4xl font-semibold leading-[1.1] tracking-tight text-ink sm:text-5xl lg:text-[3.4rem]">
                 {text.headline}
               </h1>
               <p className="mt-6 max-w-xl text-base leading-7 text-ink-soft sm:text-lg">

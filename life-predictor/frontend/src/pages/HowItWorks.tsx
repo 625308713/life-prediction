@@ -284,10 +284,10 @@ export default function HowItWorks() {
       <header className="sticky top-0 z-20 border-b border-line bg-surface/90 px-4 py-3 backdrop-blur">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-3">
           <Link to="/" className="flex items-center gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-800 text-sm font-black text-white">
+            <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-800 text-sm font-semibold text-white">
               LS
             </span>
-            <span className="text-sm font-black text-ink">LifeScore</span>
+            <span className="text-sm font-semibold text-ink">LifeScore</span>
           </Link>
           <div className="flex items-center gap-3">
             <Link to="/" className="btn-secondary px-3 py-1.5 text-sm">
@@ -305,7 +305,7 @@ export default function HowItWorks() {
               <p className="text-xs font-bold uppercase tracking-[0.24em] text-primary-100">
                 {text.eyebrow}
               </p>
-              <h1 className="mt-4 max-w-3xl text-4xl font-black leading-tight tracking-normal sm:text-5xl">
+              <h1 className="mt-4 max-w-3xl font-serif text-4xl font-semibold leading-tight tracking-normal sm:text-5xl">
                 {text.title}
               </h1>
               <p className="mt-6 max-w-2xl text-base leading-8 text-white/75">
@@ -314,7 +314,7 @@ export default function HowItWorks() {
               <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
                 <Link
                   to="/"
-                  className="inline-flex items-center justify-center rounded-lg bg-white px-6 py-3 text-sm font-black text-ink shadow-lg shadow-black/10 hover:bg-primary-50"
+                  className="inline-flex items-center justify-center rounded-lg bg-white px-6 py-3 text-sm font-semibold text-ink shadow-lg shadow-black/10 hover:bg-primary-50"
                 >
                   {text.startQuiz}
                 </Link>
@@ -328,7 +328,7 @@ export default function HowItWorks() {
                   key={item.label}
                   className="rounded-lg border border-white/12 bg-white/8 p-4"
                 >
-                  <p className="text-sm font-black text-primary-100">{item.label}</p>
+                  <p className="text-sm font-semibold text-primary-100">{item.label}</p>
                   <p className="mt-2 text-sm leading-6 text-white/70">{item.value}</p>
                 </article>
               ))}
@@ -341,15 +341,15 @@ export default function HowItWorks() {
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary-700">
               Method
             </p>
-            <h2 className="mt-3 text-3xl font-black tracking-normal">{text.methodTitle}</h2>
+            <h2 className="mt-3 text-3xl font-semibold tracking-normal">{text.methodTitle}</h2>
             <p className="mt-4 text-sm leading-7 text-ink-soft">{text.methodIntro}</p>
           </div>
 
           <div className="mt-7 grid gap-4 md:grid-cols-2">
             {text.methodSteps.map((step) => (
               <article key={step.label} className="rounded-lg border border-line bg-white p-5">
-                <p className="text-xs font-black text-accent-700">{step.label}</p>
-                <h3 className="mt-3 text-xl font-black">{step.title}</h3>
+                <p className="text-xs font-semibold text-accent-700">{step.label}</p>
+                <h3 className="mt-3 text-xl font-semibold">{step.title}</h3>
                 <p className="mt-3 text-sm leading-7 text-ink-soft">{step.body}</p>
               </article>
             ))}
@@ -362,7 +362,7 @@ export default function HowItWorks() {
               <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary-700">
                 Signals
               </p>
-              <h2 className="mt-3 text-3xl font-black tracking-normal">{text.signalTitle}</h2>
+              <h2 className="mt-3 text-3xl font-semibold tracking-normal">{text.signalTitle}</h2>
               <p className="mt-4 text-sm leading-7 text-ink-soft">{text.signalIntro}</p>
             </div>
             <div className="grid gap-3">
@@ -371,7 +371,7 @@ export default function HowItWorks() {
                   key={signal}
                   className="flex gap-4 rounded-lg border border-line bg-white px-4 py-3"
                 >
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-100 text-xs font-black text-primary-800">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-100 text-xs font-semibold text-primary-800">
                     {index + 1}
                   </span>
                   <p className="text-sm font-semibold leading-6 text-ink-soft">{signal}</p>
@@ -386,7 +386,7 @@ export default function HowItWorks() {
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary-700">
               Score
             </p>
-            <h2 className="mt-3 text-3xl font-black tracking-normal">{text.scoreTitle}</h2>
+            <h2 className="mt-3 text-3xl font-semibold tracking-normal">{text.scoreTitle}</h2>
             <p className="mt-4 text-sm leading-7 text-ink-soft">{text.scoreIntro}</p>
           </div>
           <div className="space-y-4">
@@ -394,7 +394,7 @@ export default function HowItWorks() {
               <article key={part.label} className="rounded-lg border border-line bg-white p-5">
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <h3 className="text-base font-black">{part.label}</h3>
+                    <h3 className="text-base font-semibold">{part.label}</h3>
                     <p className="mt-2 text-sm leading-6 text-ink-soft">{part.body}</p>
                   </div>
                 </div>
@@ -412,7 +412,7 @@ export default function HowItWorks() {
               <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary-100">
                 Boundaries
               </p>
-              <h2 className="mt-3 text-3xl font-black tracking-normal">{text.limitsTitle}</h2>
+              <h2 className="mt-3 text-3xl font-semibold tracking-normal">{text.limitsTitle}</h2>
             </div>
             <div className="grid gap-3">
               {text.limits.map((limit) => (
@@ -433,7 +433,7 @@ export default function HowItWorks() {
               <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary-700">
                 References
               </p>
-              <h2 className="mt-3 text-3xl font-black tracking-normal">
+              <h2 className="mt-3 text-3xl font-semibold tracking-normal">
                 {text.referencesTitle}
               </h2>
               <p className="mt-4 text-sm leading-7 text-ink-soft">{text.referencesIntro}</p>
@@ -454,7 +454,7 @@ export default function HowItWorks() {
           </div>
 
           <div className="mt-10 rounded-lg border border-line bg-white p-6">
-            <h2 className="text-2xl font-black">{text.closingTitle}</h2>
+            <h2 className="text-2xl font-semibold">{text.closingTitle}</h2>
             <p className="mt-3 max-w-3xl text-sm leading-7 text-ink-soft">{text.closingBody}</p>
           </div>
 

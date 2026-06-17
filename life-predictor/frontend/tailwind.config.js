@@ -14,6 +14,16 @@ export default {
           "Consolas",
           "monospace",
         ],
+        // Editorial serif, used sparingly on a few hero headlines to add a
+        // premium "longevity journal" accent that sans-only wellness apps lack.
+        serif: [
+          "Georgia",
+          "Cambria",
+          "Songti SC",
+          "STSong",
+          "Noto Serif SC",
+          "serif",
+        ],
       },
       colors: {
         // Page + text tokens. Use these instead of arbitrary hex values.

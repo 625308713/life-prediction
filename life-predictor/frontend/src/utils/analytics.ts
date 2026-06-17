@@ -10,7 +10,8 @@ export type EventType =
   | "poster_download"
   | "challenge_copy"
   | "challenge_done"
-  | "lead_submit";
+  | "lead_submit"
+  | "recommendation_click";
 
 export function track(type: EventType, predictionId?: string): void {
   try {

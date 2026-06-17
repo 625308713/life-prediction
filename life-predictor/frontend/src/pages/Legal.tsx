@@ -331,10 +331,10 @@ export default function Legal() {
 
       <main className="mx-auto max-w-4xl px-4 py-10">
         <section className="card-dark p-6 sm:p-8">
-          <p className="text-xs font-bold uppercase tracking-[0.22em] text-primary-100">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-primary-300/90">
             {page.eyebrow}
           </p>
-          <h1 className="mt-4 text-4xl font-black leading-tight sm:text-5xl">
+          <h1 className="mt-4 font-serif text-4xl font-semibold leading-tight sm:text-5xl">
             {page.title}
           </h1>
           <p className="mt-5 max-w-3xl text-sm leading-7 text-white/75">{page.intro}</p>
@@ -344,7 +344,7 @@ export default function Legal() {
         <section className="mt-6 space-y-4">
           {page.sections.map((section) => (
             <article key={section.title} className="rounded-lg border border-line bg-white p-5">
-              <h2 className="text-xl font-black text-ink">{section.title}</h2>
+              <h2 className="text-xl font-semibold text-ink">{section.title}</h2>
               <div className="mt-4 space-y-3">
                 {section.body.map((paragraph) => (
                   <p key={paragraph} className="text-sm leading-7 text-ink-soft">

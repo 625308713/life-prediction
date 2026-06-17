@@ -13,6 +13,11 @@ import { Link } from "react-router-dom";
 import { useLanguage } from "../hooks/useLanguage";
 import { getPrediction, submitLead as submitLeadApi } from "../utils/api";
 import { track } from "../utils/analytics";
+import {
+  pickRecommendations,
+  recommendationCategoryIcon,
+  recommendationText,
+} from "../data/recommendations";
 import type { Language, PredictionResult } from "../types";
 
 interface Props {
@@ -92,6 +97,9 @@ const copy = {
       "LifeScore 用于健康教育和自我观察，不用于诊断、治疗或替代专业医疗建议。",
     adLabel: "健康工具推荐位",
     adBody: "这里会展示与体检、运动、睡眠或营养相关的低干扰推荐。",
+    recommendTitle: "为你推荐",
+    sponsoredLabel: "赞助",
+    recommendNote: "根据你的结果类型筛选的相关健康工具，明确标注为赞助，可不点。",
     healthAgeLabel: "你的健康年龄",
     healthAgeUnit: "岁",
     youngerBy: "比实际年龄年轻 {n} 岁",
@@ -205,6 +213,9 @@ const copy = {
       "LifeScore is for health education and self-reflection. It is not diagnosis, treatment, or professional medical advice.",
     adLabel: "Health tools",
     adBody: "Low-distraction recommendations for checkups, movement, sleep, or nutrition can appear here.",
+    recommendTitle: "Recommended for you",
+    sponsoredLabel: "Sponsored",
+    recommendNote: "Relevant health tools filtered by your result type, clearly labeled as sponsored. Optional.",
     healthAgeLabel: "Your health age",
     healthAgeUnit: "yrs",
     youngerBy: "{n} years younger than your actual age",
@@ -1292,6 +1303,10 @@ export default function ResultReport({ result, predictionId }: Props) {
     [lifeScore, result]
   );
   const archetype = archetypeCopy[language][archetypeKey];
+  const recommendations = useMemo(
+    () => pickRecommendations(archetypeKey),
+    [archetypeKey]
+  );
 
   const radarData = Object.entries(result.dimensionScores).map(([name, score]) => ({
     dimension: t.dimensionNames[name as keyof typeof t.dimensionNames] || name,
@@ -1614,7 +1629,7 @@ export default function ResultReport({ result, predictionId }: Props) {
               <p className="text-xs font-bold uppercase tracking-[0.14em] text-primary-700">
                 {text.archetypeEyebrow}
               </p>
-              <p className="mt-2 text-2xl font-black leading-tight text-ink">
+              <p className="mt-2 font-serif text-[1.65rem] font-semibold leading-tight text-ink">
                 {archetype.name}
               </p>
               <p className="mt-2 text-sm font-semibold leading-6 text-primary-800">
@@ -1657,7 +1672,7 @@ export default function ResultReport({ result, predictionId }: Props) {
         <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary-700">
           {text.profileTitle}
         </p>
-        <p className="mt-3 text-xl font-black leading-8 text-ink">
+        <p className="mt-3 font-serif text-xl font-medium leading-8 text-ink">
           {archetype.description}
         </p>
         <p className="mt-3 text-sm leading-6 text-ink-soft">{profileText}</p>
@@ -2099,10 +2114,46 @@ export default function ResultReport({ result, predictionId }: Props) {
         </div>
       </details>
 
-      <div className="rounded-lg border border-dashed border-line bg-white/60 p-5 text-sm text-ink-faint">
-        <p className="font-black text-ink">{text.adLabel}</p>
-        <p className="mt-2 leading-6">{text.adBody}</p>
-      </div>
+      {recommendations.length > 0 && (
+        <section className="rounded-card border border-line bg-white p-5">
+          <div className="flex items-center justify-between">
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-ink-faint">
+              {text.recommendTitle}
+            </p>
+            <span className="rounded-full border border-line px-2.5 py-0.5 text-[11px] font-semibold text-ink-faint">
+              {text.sponsoredLabel}
+            </span>
+          </div>
+          <p className="mt-1 text-xs leading-5 text-ink-faint">{text.recommendNote}</p>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            {recommendations.map((rec) => {
+              const rc = recommendationText(rec, language);
+              return (
+                <a
+                  key={rec.id}
+                  href={rec.href}
+                  target="_blank"
+                  rel="noopener nofollow sponsored"
+                  onClick={() => track("recommendation_click", predictionId)}
+                  className="group flex flex-col rounded-lg border border-line bg-surface p-4 transition-colors hover:border-primary-300 hover:bg-primary-50"
+                >
+                  <div className="flex items-center gap-2">
+                    <span aria-hidden className="text-lg">
+                      {recommendationCategoryIcon[rec.category]}
+                    </span>
+                    <p className="text-sm font-black text-ink">{rc.label}</p>
+                  </div>
+                  <p className="mt-2 flex-1 text-xs leading-5 text-ink-soft">{rc.body}</p>
+                  <span className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-primary-700 group-hover:text-primary-900">
+                    {rc.cta}
+                    <span aria-hidden>→</span>
+                  </span>
+                </a>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       <p className="px-2 pb-4 text-center text-xs leading-5 text-ink-faint">
         {text.disclaimer}

@@ -29,6 +29,7 @@ export const EVENT_TYPES = [
   "challenge_copy",
   "challenge_done",
   "lead_submit",
+  "recommendation_click",
 ] as const;
 
 const leadLimiter = rateLimit({

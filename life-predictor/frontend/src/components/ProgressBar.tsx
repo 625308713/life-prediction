@@ -42,7 +42,8 @@ export default function ProgressBar({
       <div className="flex items-center justify-between text-sm text-ink-faint">
         <span className="font-semibold">{phaseLabel}</span>
         <span>
-          {t.questionnaire.confidence}: {Math.round(confidenceLevel)}%
+          {t.questionnaire.confidence}:{" "}
+          <span className="num">{Math.round(confidenceLevel)}%</span>
         </span>
       </div>
       <div className="h-2.5 w-full overflow-hidden rounded-full bg-line">

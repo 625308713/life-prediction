@@ -540,14 +540,14 @@ export default function Home() {
                 <div className="card-dark p-6">
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <p className="text-xs uppercase tracking-[0.22em] text-primary-200">
+                      <p className="text-[11px] uppercase tracking-[0.28em] text-primary-300/90">
                         {text.scoreLabel}
                       </p>
-                      <p className="mt-3 bg-gradient-to-br from-white via-primary-100 to-primary-300 bg-clip-text text-7xl font-black leading-none tracking-tight text-transparent">
+                      <p className="num mt-3 text-7xl font-bold leading-[0.85] text-white">
                         {sampleScore}
                       </p>
                     </div>
-                    <div className="rounded-full bg-white/12 px-3 py-1 text-xs font-semibold">
+                    <div className="num rounded-full bg-white/[0.08] px-3 py-1 text-xs font-semibold ring-1 ring-inset ring-white/10">
                       {Math.round(confidenceLevel)}%
                     </div>
                   </div>
@@ -753,7 +753,7 @@ export default function Home() {
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary-700">
               {t.questionnaire.confidence}
             </p>
-            <p className="mt-3 text-4xl font-black text-ink">
+            <p className="num mt-3 text-4xl font-semibold text-ink">
               {Math.round(confidenceLevel)}%
             </p>
             <p className="mt-2 text-sm leading-6 text-ink-faint">{text.stepHint}</p>

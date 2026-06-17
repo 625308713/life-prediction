@@ -38,13 +38,13 @@
   .card {
     @apply rounded-card border border-line bg-white p-6 shadow-card;
   }
-  /* Dark hero card: the ceremonial surface for scores and result highlights. */
+  /* Instrument-panel hero: the ceremonial near-black surface for the reveal
+     moment. Deep ink + a single luminous mint glow + hairline edge. */
   .card-dark {
-    @apply relative overflow-hidden rounded-card text-white shadow-glow;
+    @apply relative overflow-hidden rounded-card text-white shadow-glow ring-1 ring-inset ring-white/[0.06];
     background:
-      radial-gradient(120% 90% at 85% -10%, rgba(67, 200, 178, 0.32) 0%, transparent 55%),
-      radial-gradient(80% 60% at 10% 110%, rgba(18, 111, 104, 0.5) 0%, transparent 60%),
-      linear-gradient(150deg, #11332e 0%, #0a2420 55%, #081d1a 100%);
+      radial-gradient(110% 80% at 88% -12%, rgba(90, 214, 176, 0.16) 0%, transparent 52%),
+      linear-gradient(162deg, #0c1a16 0%, #081210 58%, #060d0b 100%);
   }
   .chip {
     @apply inline-flex items-center gap-1.5 rounded-full bg-primary-50 px-3 py-1
@@ -67,5 +67,16 @@
   }
   .step-pending {
     @apply bg-line text-ink-faint;
+  }
+  /* Numeral signature: tabular monospace for every headline number, so the
+     product reads like a precise data instrument, not a generic wellness app. */
+  .num {
+    font-family: theme("fontFamily.mono");
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
+  /* Hairline divider for the instrument surfaces. */
+  .hairline {
+    @apply border-white/10;
   }
 }

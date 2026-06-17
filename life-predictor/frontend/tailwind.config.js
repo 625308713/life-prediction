@@ -3,6 +3,18 @@ export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
+      fontFamily: {
+        // Tabular monospace numerals: the "data product" signature applied to
+        // every headline number (health age, score, metrics).
+        mono: [
+          "ui-monospace",
+          "SF Mono",
+          "SFMono-Regular",
+          "Menlo",
+          "Consolas",
+          "monospace",
+        ],
+      },
       colors: {
         // Page + text tokens. Use these instead of arbitrary hex values.
         surface: "#f5f7f6",

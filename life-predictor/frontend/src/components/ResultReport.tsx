@@ -1513,11 +1513,11 @@ export default function ResultReport({ result, predictionId }: Props) {
       <section className="card-dark animate-fade-up">
         <div className="grid gap-6 p-6 sm:p-8 lg:grid-cols-[1fr_320px] lg:p-10">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.22em] text-primary-200">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-primary-300/90">
               {healthAge !== undefined ? text.healthAgeLabel : text.eyebrow}
             </p>
-            <div className="mt-5 flex flex-wrap items-end gap-4">
-              <p className="bg-gradient-to-br from-white via-primary-100 to-primary-300 bg-clip-text text-8xl font-black leading-none tracking-tight text-transparent sm:text-9xl">
+            <div className="mt-4 flex flex-wrap items-end gap-4">
+              <p className="num text-8xl font-bold leading-[0.85] text-white sm:text-9xl">
                 {healthAge !== undefined ? healthAge : lifeScore}
               </p>
               <div className="pb-2">
@@ -1572,28 +1572,30 @@ export default function ResultReport({ result, predictionId }: Props) {
                 </div>
               ) : (
                 <>
-                  <div className="rounded-lg bg-white/10 p-4">
-                    <p className="text-xs text-white/55">{text.rangeLabel}</p>
-                    <p className="mt-1 text-2xl font-black">
-                      {result.adjustedMin}-{result.adjustedMax} {text.years}
+                  <div className="rounded-lg bg-white/[0.05] p-4 ring-1 ring-inset ring-white/10">
+                    <p className="text-[11px] uppercase tracking-wider text-white/45">{text.rangeLabel}</p>
+                    <p className="num mt-1.5 text-2xl font-semibold text-white">
+                      {result.adjustedMin}-{result.adjustedMax}
+                      <span className="ml-1 text-sm font-normal text-white/50">{text.years}</span>
                     </p>
-                    <p className="mt-2 text-xs leading-5 text-white/55">{metricNotes.range}</p>
+                    <p className="mt-2 text-xs leading-5 text-white/45">{metricNotes.range}</p>
                   </div>
-                  <div className="rounded-lg bg-white/10 p-4">
-                    <p className="text-xs text-white/55">{text.healthyYears}</p>
-                    <p className="mt-1 text-2xl font-black">
-                      {result.healthLifespan} {text.years}
+                  <div className="rounded-lg bg-white/[0.05] p-4 ring-1 ring-inset ring-white/10">
+                    <p className="text-[11px] uppercase tracking-wider text-white/45">{text.healthyYears}</p>
+                    <p className="num mt-1.5 text-2xl font-semibold text-white">
+                      {result.healthLifespan}
+                      <span className="ml-1 text-sm font-normal text-white/50">{text.years}</span>
                     </p>
-                    <p className="mt-2 text-xs leading-5 text-white/55">
+                    <p className="mt-2 text-xs leading-5 text-white/45">
                       {metricNotes.healthyYears}
                     </p>
                   </div>
                 </>
               )}
-              <div className="rounded-lg bg-white/10 p-4">
-                <p className="text-xs text-white/55">{text.betterThan}</p>
-                <p className="mt-1 text-2xl font-black">{result.percentile}%</p>
-                <p className="mt-2 text-xs leading-5 text-white/55">
+              <div className="rounded-lg bg-white/[0.05] p-4 ring-1 ring-inset ring-white/10">
+                <p className="text-[11px] uppercase tracking-wider text-white/45">{text.betterThan}</p>
+                <p className="num mt-1.5 text-2xl font-semibold text-primary-300">{result.percentile}%</p>
+                <p className="mt-2 text-xs leading-5 text-white/45">
                   {metricNotes.percentile}
                 </p>
               </div>
@@ -1617,7 +1619,7 @@ export default function ResultReport({ result, predictionId }: Props) {
             </div>
             <div className="mt-4 flex items-baseline justify-between">
               <p className="text-sm font-bold text-ink-soft">{text.scoreLabel}</p>
-              <p className="text-3xl font-black text-ink">{lifeScore}</p>
+              <p className="num text-3xl font-semibold text-ink">{lifeScore}</p>
             </div>
             <div className="mt-2 h-4 overflow-hidden rounded-full bg-line">
               <div
@@ -1636,7 +1638,7 @@ export default function ResultReport({ result, predictionId }: Props) {
             {result.potentialGain > 0 && (
               <div className="mt-5 rounded-lg bg-accent-50 p-4 text-sm leading-6 text-accent-900">
                 {text.potential}{" "}
-                <span className="text-xl font-black">{result.potentialGain}</span>{" "}
+                <span className="num text-xl font-semibold">{result.potentialGain}</span>{" "}
                 {text.years}
                 <p className="mt-2 text-xs leading-5 text-accent-800">
                   {metricNotes.potential}

@@ -1,10 +1,21 @@
 import { Router, Request, Response } from "express";
 import rateLimit from "express-rate-limit";
 import prisma from "../prisma/client";
+import { isEmailEnabled, sendResultRecoveryEmail } from "../services/email";
 
 const router = Router();
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+const PUBLIC_SITE_URL = process.env.PUBLIC_SITE_URL || "";
+
+// Resolve the public base URL for links in emails (prefers PUBLIC_SITE_URL).
+function getBaseUrl(req: Request): string {
+  if (PUBLIC_SITE_URL) return PUBLIC_SITE_URL.replace(/\/+$/, "");
+  const forwardedProto = req.get("x-forwarded-proto")?.split(",")[0]?.trim();
+  const protocol = forwardedProto || req.protocol;
+  return `${protocol}://${req.get("host")}`;
+}
 
 // Funnel event types the frontend is allowed to record.
 export const EVENT_TYPES = [
@@ -60,9 +71,19 @@ router.post("/leads", leadLimiter, async (req: Request, res: Response): Promise<
       await prisma.lead.create({
         data: { email, predictionId, source, language },
       });
+
+      // Fire-and-forget: send a result recovery link. Only on first capture
+      // for this email+result, so re-submits don't re-send. No-ops if SMTP
+      // is not configured.
+      if (predictionId && isEmailEnabled()) {
+        const resultUrl = `${getBaseUrl(req)}/result/${predictionId}`;
+        void sendResultRecoveryEmail({ to: email, resultUrl, language }).catch(
+          (err) => console.error("[Engagement] Recovery email failed:", err)
+        );
+      }
     }
 
-    res.json({ ok: true });
+    res.json({ ok: true, emailSent: Boolean(predictionId && isEmailEnabled()) });
   } catch (error) {
     console.error("[Engagement] Lead error:", error);
     res.status(500).json({ error: "提交失败，请稍后重试" });

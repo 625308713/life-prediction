@@ -111,7 +111,15 @@ docker compose up -d
 | `AI_MODEL` | AI 模型名称 | 否（不填则跳过 AI 报告） |
 | `PORT` | 服务端口（默认 3001） | 否 |
 | `FRONTEND_URL` | 前端地址（用于 CORS） | 否 |
+| `PUBLIC_SITE_URL` | 站点公开地址（用于邮件里的结果找回链接） | 否 |
 | `NODE_ENV` | 运行环境（development/production） | 否 |
+| `EMAIL_SMTP_HOST` | SMTP 主机（任意支持 SMTP 的服务商：Resend / 阿里云邮件推送 / SES / SendGrid 等） | 否（不填则不发邮件） |
+| `EMAIL_SMTP_PORT` | SMTP 端口（465=SMTPS，587=STARTTLS，默认 587） | 否 |
+| `EMAIL_SMTP_USER` | SMTP 用户名 | 否 |
+| `EMAIL_SMTP_PASS` | SMTP 密码 / API Key | 否 |
+| `EMAIL_FROM` | 发件人，如 `LifeScore <noreply@your-domain>` | 否 |
+
+> 邮件为可选能力：不配置 SMTP 时留资仍可正常保存，只是不会给用户发送结果找回邮件。要启用，填好上面 5 个 `EMAIL_*` 变量即可，无需改代码。
 
 ## API 接口
 

@@ -1033,12 +1033,15 @@ function downloadSharePoster(content: PosterContent, fileName: string) {
     content.language === "zh"
       ? "\"Microsoft YaHei\", \"PingFang SC\", Arial, sans-serif"
       : "Arial, Helvetica, sans-serif";
+  // Tabular monospace for the headline number: the data-instrument signature.
+  const mono = "\"SF Mono\", \"Consolas\", \"Menlo\", monospace";
+  const MINT = "#5ad6b0";
 
-  ctx.fillStyle = "#f8f5ef";
+  // Near-black instrument canvas.
+  ctx.fillStyle = "#070d0b";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  fillRoundRect(ctx, 66, 66, 948, 1308, 56, "#19312e");
-  ctx.strokeStyle = "rgba(255,255,255,0.16)";
+  fillRoundRect(ctx, 66, 66, 948, 1308, 56, "#0c1a16");
+  ctx.strokeStyle = "rgba(90,214,176,0.18)";
   ctx.lineWidth = 2;
   for (let i = 0; i < 8; i += 1) {
     ctx.beginPath();
@@ -1047,58 +1050,59 @@ function downloadSharePoster(content: PosterContent, fileName: string) {
     ctx.stroke();
   }
 
-  ctx.fillStyle = "#f2d27c";
+  ctx.fillStyle = MINT;
   ctx.font = `700 42px ${sans}`;
   ctx.fillText("LifeScore", 116, 154);
   ctx.fillStyle = "rgba(255,255,255,0.72)";
   ctx.font = `500 28px ${sans}`;
   ctx.fillText(content.title, 116, 204);
-  ctx.fillStyle = "rgba(255,255,255,0.52)";
+  ctx.fillStyle = "rgba(255,255,255,0.45)";
   ctx.font = `500 22px ${sans}`;
   ctx.fillText(content.subtitle, 116, 244);
 
-  fillRoundRect(ctx, 116, 274, 852, 316, 34, "#fbf8f1");
-  ctx.fillStyle = "#19312e";
-  ctx.font = `900 170px ${sans}`;
+  fillRoundRect(ctx, 116, 274, 852, 316, 34, "rgba(255,255,255,0.05)");
+  ctx.fillStyle = "#ffffff";
+  ctx.font = `700 170px ${mono}`;
   ctx.fillText(String(content.lifeScore), 156, 462);
-  ctx.font = `700 30px ${sans}`;
-  ctx.fillText(content.scoreLabel, 166, 520);
+  ctx.fillStyle = "rgba(255,255,255,0.55)";
+  ctx.font = `600 28px ${sans}`;
+  ctx.fillText(content.scoreLabel, 166, 522);
 
-  ctx.fillStyle = "#7a6f5f";
-  ctx.font = `800 24px ${sans}`;
+  ctx.fillStyle = "rgba(255,255,255,0.45)";
+  ctx.font = `700 24px ${sans}`;
   ctx.fillText(content.typeLabel, 480, 334);
-  ctx.fillStyle = "#148b80";
-  ctx.font = `800 48px ${serif}, ${sans}`;
+  ctx.fillStyle = MINT;
+  ctx.font = `700 48px ${serif}, ${sans}`;
   drawWrappedText(ctx, content.archetypeName, 478, 388, 410, 56, 2);
-  ctx.fillStyle = "#44534e";
+  ctx.fillStyle = "rgba(255,255,255,0.72)";
   ctx.font = `500 28px ${sans}`;
   drawWrappedText(ctx, content.archetypeTagline, 480, 476, 420, 38, 2);
 
-  fillRoundRect(ctx, 116, 650, 852, 368, 28, "rgba(255,255,255,0.10)");
-  ctx.fillStyle = "#f2d27c";
-  ctx.font = `800 27px ${sans}`;
+  fillRoundRect(ctx, 116, 650, 852, 368, 28, "rgba(255,255,255,0.05)");
+  ctx.fillStyle = MINT;
+  ctx.font = `700 27px ${sans}`;
   ctx.fillText(content.signalLabel, 164, 730);
   ctx.fillText(content.focusLabel, 164, 882);
-  ctx.fillStyle = "#ffffff";
-  ctx.font = `600 34px ${sans}`;
+  ctx.fillStyle = "rgba(255,255,255,0.92)";
+  ctx.font = `500 34px ${sans}`;
   drawWrappedText(ctx, content.signal, 164, 780, 728, 44, 2);
   drawWrappedText(ctx, content.focus, 164, 932, 728, 44, 2);
 
-  fillRoundRect(ctx, 116, 1072, 396, 166, 24, "#fbf8f1");
-  fillRoundRect(ctx, 552, 1072, 416, 166, 24, "#fbf8f1");
-  ctx.fillStyle = "#7a6f5f";
-  ctx.font = `800 24px ${sans}`;
+  fillRoundRect(ctx, 116, 1072, 396, 166, 24, "rgba(255,255,255,0.05)");
+  fillRoundRect(ctx, 552, 1072, 416, 166, 24, "rgba(255,255,255,0.05)");
+  ctx.fillStyle = "rgba(255,255,255,0.45)";
+  ctx.font = `700 24px ${sans}`;
   ctx.fillText(content.strengthLabel, 154, 1130);
   ctx.fillText(content.riskLabel, 590, 1130);
-  ctx.fillStyle = "#19312e";
-  ctx.font = `800 32px ${sans}`;
+  ctx.fillStyle = "#ffffff";
+  ctx.font = `700 32px ${sans}`;
   drawWrappedText(ctx, content.strength, 154, 1180, 318, 40, 2);
   drawWrappedText(ctx, content.risk, 590, 1180, 330, 40, 2);
 
-  ctx.fillStyle = "#f2d27c";
-  ctx.font = `800 32px ${sans}`;
+  ctx.fillStyle = MINT;
+  ctx.font = `700 32px ${sans}`;
   ctx.fillText(content.cta, 116, 1294);
-  ctx.fillStyle = "rgba(255,255,255,0.72)";
+  ctx.fillStyle = "rgba(255,255,255,0.55)";
   ctx.font = `500 24px ${sans}`;
   drawWrappedText(ctx, content.shareHost, 116, 1334, 560, 30, 1);
   ctx.textAlign = "right";
@@ -1551,11 +1555,11 @@ export default function ResultReport({ result, predictionId }: Props) {
             {previousEntry && (
               <div className="mt-4 inline-flex flex-wrap items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm">
                 <span className="text-white/60">
-                  {text.compareLast} {previousEntry.lifeScore}
+                  {text.compareLast} <span className="num">{previousEntry.lifeScore}</span>
                 </span>
                 <span aria-hidden className="text-white/40">→</span>
-                <span className="font-black text-accent-300">
-                  {text.compareThis} {lifeScore}
+                <span className="font-bold text-accent-300">
+                  {text.compareThis} <span className="num">{lifeScore}</span>
                 </span>
                 <span className="text-xs text-white/45">
                   {text.compareDaysAgo.replace("{n}", String(previousDaysAgo))}
@@ -1873,7 +1877,7 @@ export default function ResultReport({ result, predictionId }: Props) {
                         }
                       />
                     </div>
-                    <span className="w-8 shrink-0 text-right text-xs font-bold text-ink-soft">
+                    <span className="num w-8 shrink-0 text-right text-xs font-semibold text-ink-soft">
                       {d.score > 0 ? "+" : ""}
                       {d.score}
                     </span>

@@ -525,39 +525,40 @@ export default function Share() {
                   </p>
                 </div>
               )}
-              <div className="rounded-lg bg-white/10 p-4">
-                <p className="text-xs text-white/55">{text.confidence}</p>
-                <p className="mt-1 text-2xl font-black">{share.confidenceLevel}%</p>
+              <div className="rounded-lg bg-white/[0.05] p-4 ring-1 ring-inset ring-white/10">
+                <p className="text-[11px] uppercase tracking-wider text-white/45">{text.confidence}</p>
+                <p className="num mt-1.5 text-2xl font-semibold text-white">{share.confidenceLevel}%</p>
               </div>
-              <div className="rounded-lg bg-white/10 p-4">
-                <p className="text-xs text-white/55">{text.percentile}</p>
-                <p className="mt-1 text-2xl font-black">{share.percentile}%</p>
+              <div className="rounded-lg bg-white/[0.05] p-4 ring-1 ring-inset ring-white/10">
+                <p className="text-[11px] uppercase tracking-wider text-white/45">{text.percentile}</p>
+                <p className="num mt-1.5 text-2xl font-semibold text-primary-300">{share.percentile}%</p>
               </div>
-              <div className="rounded-lg bg-white/10 p-4">
-                <p className="text-xs text-white/55">{text.potential}</p>
-                <p className="mt-1 text-2xl font-black">
-                  {share.potentialGain} {text.years}
+              <div className="rounded-lg bg-white/[0.05] p-4 ring-1 ring-inset ring-white/10">
+                <p className="text-[11px] uppercase tracking-wider text-white/45">{text.potential}</p>
+                <p className="num mt-1.5 text-2xl font-semibold text-white">
+                  {share.potentialGain}
+                  <span className="ml-1 text-sm font-normal text-white/50">{text.years}</span>
                 </p>
               </div>
             </div>
           </div>
 
           <aside className="rounded-card border border-line bg-white p-5 shadow-lift">
-            <div className="rounded-card bg-surface p-5">
-              <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary-700">
+            <div className="card-dark p-5">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-primary-300/90">
                 {text.scoreLabel}
               </p>
-              <div className="mt-4 flex items-end gap-4">
-                <p className="bg-gradient-to-br from-primary-950 via-primary-800 to-primary-500 bg-clip-text text-8xl font-black leading-none tracking-tight text-transparent">
+              <div className="mt-3 flex items-end gap-4">
+                <p className="num text-8xl font-bold leading-[0.85] text-white">
                   {lifeScore}
                 </p>
                 <div className="pb-3">
-                  <p className="text-sm font-black text-ink-soft">{archetype.name}</p>
+                  <p className="text-sm font-bold text-white/80">{archetype.name}</p>
                 </div>
               </div>
-              <div className="mt-5 h-3 overflow-hidden rounded-full bg-line">
+              <div className="mt-5 h-2 overflow-hidden rounded-full bg-white/10">
                 <div
-                  className="h-full animate-bar-fill rounded-full bg-gradient-to-r from-primary-500 via-primary-400 to-accent-400"
+                  className="h-full animate-bar-fill rounded-full bg-gradient-to-r from-primary-400 to-primary-200"
                   style={{ width: `${lifeScore}%` }}
                 />
               </div>

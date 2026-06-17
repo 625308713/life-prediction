@@ -883,9 +883,13 @@ export function CoreProfileStep({ data, onChange }: Props) {
       </div>
 
       <div className="rounded-lg bg-surface px-4 py-3 text-sm text-ink-soft">
-        <span className="font-black text-primary-800">{text.bmi}: {data.bmi}</span>
+        <span className="font-semibold text-primary-800">
+          {text.bmi}: <span className="num">{data.bmi}</span>
+        </span>
         <span className="mx-3 text-line">|</span>
-        <span>{text.waist}: {data.waistCm} {text.cm}</span>
+        <span>
+          {text.waist}: <span className="num">{data.waistCm}</span> {text.cm}
+        </span>
       </div>
 
       <FieldGroup label={text.labels.region}>

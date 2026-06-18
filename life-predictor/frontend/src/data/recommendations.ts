@@ -37,13 +37,16 @@ export const recommendationCategoryIcon: Record<RecommendationCategory, string> 
   nutrition: "🥗",
 };
 
-// Example items. Replace `href` with real sponsor/affiliate links before launch.
+// Ready-to-use templates. `href` is intentionally BLANK for launch: items with
+// an empty href are hidden, so the whole slot stays invisible until real
+// sponsor/affiliate URLs are filled in (e.g. JD Union links once the site has a
+// live domain). To go live with a recommendation, paste its URL into `href`.
 export const RECOMMENDATIONS: Recommendation[] = [
   {
     id: "checkup-basic",
     category: "checkup",
     archetypes: ["metabolic_tune", "prevention_catchup", "substance_reset"],
-    href: "https://example.com/checkup",
+    href: "",
     zh: {
       label: "基础体检套餐",
       body: "把血压、血糖、血脂等关键指标做一次系统检查，让结果更有据可依。",
@@ -59,7 +62,7 @@ export const RECOMMENDATIONS: Recommendation[] = [
     id: "wearable-tracker",
     category: "wearable",
     archetypes: ["movement_unlock", "recovery_first", "steady_builder"],
-    href: "https://example.com/wearable",
+    href: "",
     zh: {
       label: "智能手环 / 手表",
       body: "持续记录活动量、心率和睡眠，让 7 天挑战和复测更容易坚持。",
@@ -75,7 +78,7 @@ export const RECOMMENDATIONS: Recommendation[] = [
     id: "sleep-service",
     category: "sleep",
     archetypes: ["recovery_first"],
-    href: "https://example.com/sleep",
+    href: "",
     zh: {
       label: "睡眠改善方案",
       body: "如果恢复感是你的优先杠杆，结构化的睡眠改善课程会比单靠自律更有效。",
@@ -91,7 +94,7 @@ export const RECOMMENDATIONS: Recommendation[] = [
     id: "nutrition-service",
     category: "nutrition",
     archetypes: ["metabolic_tune"],
-    href: "https://example.com/nutrition",
+    href: "",
     zh: {
       label: "营养 / 膳食指导",
       body: "针对体重、腰围和血糖方向，循序渐进地调整饮食结构。",

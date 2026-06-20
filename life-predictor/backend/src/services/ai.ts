@@ -373,7 +373,9 @@ export async function generateAIReport(
         if (dataStr === "[DONE]") continue;
 
         try {
-          const parsed = JSON.parse(dataStr);
+          const parsed = JSON.parse(dataStr) as {
+            choices?: { delta?: { content?: string } }[];
+          };
           const content = parsed.choices?.[0]?.delta?.content;
           if (content) {
             fullContent += content;
